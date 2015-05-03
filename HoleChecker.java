@@ -26,7 +26,10 @@ public class HoleChecker{
             board[occX][occY] = Piece.DUMMY;
           }
         }
-        System.out.println("trial board");
+        System.out.println("trial board locations: ");
+        for(int[] paire : occupied){
+          System.out.println(paire[0] + " " + paire[1]);
+        }
         displayBoard(board);
 
 
@@ -37,7 +40,10 @@ public class HoleChecker{
     public boolean hasHolesNow(){
       for(int[] xy : occupied){
           // we have a hole.
-          if(checkOccupiedSurroundings(xy)) return true; // true if has holes
+          if(checkOccupiedSurroundings(xy)) {
+            System.out.printf("%s %s is an invalid loc\n", xy[0], xy[1]);
+            return true; // true if has holes
+          }
         }
         return false;
     }
@@ -46,30 +52,44 @@ public class HoleChecker{
     public boolean checkOccupiedSurroundings(int[] occupiedSquare){
       int x = occupiedSquare[0];
       int y = occupiedSquare[1];
+      System.out.printf("Checking %s %s surroundings\n", x, y);
       // check top
       if(x > 0){
         if(board[x - 1][y] == Piece.EMPTY){
-          if (checkEmptySpace(x - 1, y)) return true; // true if has holes
+          if (checkEmptySpace(x - 1, y)) {
+            System.out.printf("[x] %s %s\n", x - 1, y);
+            return true; // true if has holes
+          }
         }
       }
       //check bottom
       if(x < board.length - 1){
         if(board[x + 1][y] == Piece.EMPTY){
-          if (checkEmptySpace(x + 1, y)) return true; // true if has holes
+          if (checkEmptySpace(x + 1, y)) {
+            System.out.printf("[x] %s %s\n", x + 1, y);
+            return true; // true if has holes
+          }
         }
       }
       //check left
       if(y > 0){
         if(board[x][y - 1] == Piece.EMPTY){
-          if (checkEmptySpace(x, y - 1)); return true; // true if has holes
+          if (checkEmptySpace(x, y - 1)) {
+            System.out.printf("[x] %s %s\n", x, y - 1);
+            return true; // true if has holes
+          }
         }
       }
       // check right
       if(y < board[0].length - 1){
         if(board[x][y + 1] == Piece.EMPTY){
-          if (checkEmptySpace(x, y + 1)); return true; // true if has holes
+          if (checkEmptySpace(x, y + 1)) {
+            System.out.printf("[x] %s %s\n", x, y + 1);
+            return true; // true if has holes
+          }
         }
       }
+      System.out.println("~valid~");
       return false; // nobody has holes.
     }
 
@@ -83,6 +103,7 @@ public class HoleChecker{
       if(y > 0 && board[x][y - 1] != Piece.EMPTY) surroundings++;
       // check right
       if(y < board[0].length - 1 && board[x][y + 1] != Piece.EMPTY) surroundings++;
+      System.out.printf("loc: %s %s is surrounded by %s %svalid\n", x, y, surroundings, surroundings == 4? "in":"");
       return surroundings == 4; // if 4, then I'm surrounded and can't get out.
     }
 

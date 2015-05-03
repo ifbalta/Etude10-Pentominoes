@@ -187,11 +187,11 @@ public class PentominoApp{
 				return false;
 		}
 
-		// checker = new HoleChecker(b, rowPointer, colPointer, points);
-		// 	if(!trial.pieceName().equals(starterPiece.pieceName()) && checker.hasHolesNow()){
-		// 		System.err.printf("Error: Results in holes.\n");
-		// 		return false;
-		// }
+		checker = new HoleChecker(b, rowPointer, colPointer, points);
+		if(!trial.pieceName().equals(starterPiece.pieceName()) && checker.hasHolesNow()){
+				System.err.printf("Error: Results in holes.\n");
+				return false;
+		}
 
 
 		return true;//noHoles(points);
