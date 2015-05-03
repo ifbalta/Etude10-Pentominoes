@@ -2,6 +2,7 @@
 	The Pentomino Board.
 	Testing tetris style solving.
 */
+	import java.util.*;
 public class Board{
 	private static final int PENTO_PIECES = 12;
 	private static final String PENTO_STRING = "[OPQRSTUVWXYZ]"; 
@@ -14,7 +15,7 @@ public class Board{
 
 	public static void main(String[] args){
 		
-		Board b = new Board(len, Piece.R);
+		//Board b = new Board(len, Piece.R);
 		Piece[][] gameBoard = clearTestBoard();
 		initGame();
 		System.out.println("PentominoApp internal implementation");
@@ -59,7 +60,7 @@ public class Board{
 		return board;
 	}
 
-	public static Piece[][] growIsland(Piece[][] board, OriginPiece[] origins, Pentomino startPiece){
+	public static Piece[][] growIsland(Piece[][] board, ArrayList<OriginPiece> origins, Pentomino startPiece){
 		int[][] pentoCoords;
 		int xOrigin, yOrigin;
 		int limit;
@@ -69,7 +70,7 @@ public class Board{
 		return board;
 	}
 
-	public static Piece[][] tryThisBoard(){}	
+	public static Piece[][] tryThisBoard(){ return null; }	
 
 	public static Piece[][] copyOfBoard(Piece[][] original){
 		Piece [][] copied = new Piece[original.length][];
