@@ -23,6 +23,7 @@ public class PentominoApp{
 	private static int rowPointer = 0;
 	private static int colPointer = 0;
 	private static ArrayList<Pentomino> used = new ArrayList<Pentomino>();
+	private static Pentomino starterPiece;
 
 	public static void main(String[] args){
 	
@@ -51,6 +52,7 @@ public class PentominoApp{
 		//place the pentomino dead center and store coordinates
 		ArrayList<int[]> occupied = new ArrayList<int[]>();	
 		ArrayList<OriginPiece> originPieces = new ArrayList<OriginPiece>();		
+		starterPiece = piece;
 		int[][] initialPlace = piece.placeOf();
 		int rPoint = len/2 - 2;
 		int cPoint = len/2 - 2;
@@ -93,7 +95,7 @@ public class PentominoApp{
 					//	System.out.println("I have a top");
 							xOrigin = origin.top[0];
 							yOrigin = origin.top[1];
-							if(checkValidIsland(copyOfBoard(board), pentoCoords, xOrigin, yOrigin, origin)){
+							if(checkValidIsland(copyOfBoard(board), available, xOrigin, yOrigin, origin)){
 					//			System.out.printf("valid place: %s %s\n", xOrigin, yOrigin);
 								board = placeIslandPiece(board, available, xOrigin, yOrigin);
 								used.add(available);
@@ -104,7 +106,7 @@ public class PentominoApp{
 					//	System.out.println("I have a bottom");
 							xOrigin = origin.bottom[0];
 							yOrigin = origin.bottom[1];
-							if(checkValidIsland(copyOfBoard(board), pentoCoords, xOrigin, yOrigin, origin)){
+							if(checkValidIsland(copyOfBoard(board), available, xOrigin, yOrigin, origin)){
 					//			System.out.printf("valid place: %s %s\n", xOrigin, yOrigin);
 								board = placeIslandPiece(board, available, xOrigin, yOrigin);
 								used.add(available);
@@ -115,7 +117,7 @@ public class PentominoApp{
 					//	System.out.println("I have a left");
 							xOrigin = origin.left[0];
 							yOrigin = origin.left[1];
-							if(checkValidIsland(copyOfBoard(board), pentoCoords, xOrigin - 1, yOrigin - 1, origin)){
+							if(checkValidIsland(copyOfBoard(board), available, xOrigin - 1, yOrigin - 1, origin)){
 					//			System.out.printf("valid place: %s %s\n", xOrigin, yOrigin);
 								board = placeIslandPiece(board, available, xOrigin - 1, yOrigin - 1);
 								used.add(available);
@@ -126,7 +128,7 @@ public class PentominoApp{
 					//	System.out.println("I have a right");
 							xOrigin = origin.right[0];
 							yOrigin = origin.right[1];
-							if(checkValidIsland(copyOfBoard(board), pentoCoords, xOrigin, yOrigin, origin)){
+							if(checkValidIsland(copyOfBoard(board), available, xOrigin, yOrigin, origin)){
 					//			System.out.printf("valid place: %s %s\n", xOrigin, yOrigin);
 								board = placeIslandPiece(board, available, xOrigin, yOrigin);
 								used.add(available);
@@ -155,8 +157,10 @@ public class PentominoApp{
 	/**
 	 * Checks if space is available.	 
 	*/
-	public static boolean checkValidIsland(Piece[][] b, int[][] points, int rowPointer, int colPointer, OriginPiece origin){
+	public static boolean checkValidIsland(Piece[][] b, Pentomino trial, int rowPointer, int colPointer, OriginPiece origin){
+		int[][] points = trial.placeOf();
 		int x, y;
+		HoleChecker checker; 
 		// for(int[] paire : points){
 		// 	System.err.printf(" (%s, %s) ", paire[0] + rowPointer, paire[1] + colPointer);
 		// }
@@ -176,11 +180,20 @@ public class PentominoApp{
 		//		System.err.println("Error: Not a free space");
 				return false;
 			}
+
 		}
 		if(origin.unfilled(b, rowPointer, colPointer, points)){
-				System.err.printf("Error: Results in holes.\n");
+				System.err.printf("Error: Does not actually fill space.\n");
 				return false;
-		} 
+		}
+
+		// checker = new HoleChecker(b, rowPointer, colPointer, points);
+		// 	if(!trial.pieceName().equals(starterPiece.pieceName()) && checker.hasHolesNow()){
+		// 		System.err.printf("Error: Results in holes.\n");
+		// 		return false;
+		// }
+
+
 		return true;//noHoles(points);
 	}
 
