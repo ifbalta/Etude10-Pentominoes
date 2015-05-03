@@ -1,0 +1,316 @@
+    public static void testSinglePiece(){
+    Pentomino p = new Pentomino(Piece.R);
+    String name = p.pieceName().toString();
+    int[][] pts = p.placeOf();
+    int[][] rot = p.rotate();
+    int limit = p.getLimit();
+    System.out.printf("%s %s\n", name, limit);
+
+    if(checkValid(board, pts)){
+        placePiece(board, p, pts);        
+    }
+
+  }
+
+    // for each pentomino
+    // check if they have a valid place on the board
+    // if good, place the piece,
+    // else if
+    //  check if we can rotate
+    // else
+    //  pick another piece
+  public static void testFirstRoutine(){
+    int[][] coords;
+    int rotations;
+    for(Pentomino piece : pentominoes){
+      System.out.printf("Trying %s at %s %s\n", piece, rowPointer, colPointer);
+      coords = piece.placeOf(); // returns coordinates of a pentomino
+      rotations = piece.getLimit(); // number of possible rotations
+      if(checkValid(board, coords)){
+        System.out.println("...placed " + piece);
+        placePiece(board, piece, coords);
+        displayBoard(board);
+      }else{
+        rotations--; // this rotation doesn't work
+        while(rotations > 0){
+          System.out.println("Rotating " + piece);
+          coords = piece.rotate(); // this returns coordinates of a rotation
+          if(checkValid(board, coords)){
+            System.out.println("...placed " + piece);
+            placePiece(board, piece, coords);
+            displayBoard(board);
+            rotations = 1; // so that the next round puts it to zero and break
+          }
+          rotations--;
+        }
+      }
+    }
+  }
+
+  // for each pentomino
+  // place it on every possible place on the board
+  public static void testNewRoutine(){
+    int[][] coords;
+    int rotations;
+    Piece[][] testBoard;
+    for(Pentomino piece : pentominoes){
+      coords = piece.placeOf(); // returns coordinates of a pentomino
+      rotations = piece.getLimit(); // number of possible rotations
+      while(rotations > 0){
+        for(int row = 0; row < len; row++){           
+          for(int col = 0; col < len; col++){
+            testBoard = clearTestBoard();
+            rowPointer = row;       
+            colPointer = col;
+            if(checkValid(testBoard, coords)){
+              System.out.println();
+              displayBoard(placePieceTest(testBoard, piece, coords));
+            }
+          }
+        }
+        // done with this rotation
+        coords = piece.rotate();
+        rotations--;
+      }
+
+    }
+  }
+
+  public static void testSinglePiece(){
+    Pentomino p = new Pentomino(Piece.R);
+    String name = p.pieceName().toString();
+    int[][] pts = p.placeOf();
+    int[][] rot = p.rotate();
+    int limit = p.getLimit();
+    System.out.printf("%s %s\n", name, limit);
+
+    if(checkValid(board, pts)){
+        placePiece(board, p, pts);        
+    }
+
+  }
+
+    // for each pentomino
+    // check if they have a valid place on the board
+    // if good, place the piece,
+    // else if
+    //  check if we can rotate
+    // else
+    //  pick another piece
+  public static void testFirstRoutine(){
+    int[][] coords;
+    int rotations;
+    for(Pentomino piece : pentominoes){
+      System.out.printf("Trying %s at %s %s\n", piece, rowPointer, colPointer);
+      coords = piece.placeOf(); // returns coordinates of a pentomino
+      rotations = piece.getLimit(); // number of possible rotations
+      if(checkValid(board, coords)){
+        System.out.println("...placed " + piece);
+        placePiece(board, piece, coords);
+        displayBoard(board);
+      }else{
+        rotations--; // this rotation doesn't work
+        while(rotations > 0){
+          System.out.println("Rotating " + piece);
+          coords = piece.rotate(); // this returns coordinates of a rotation
+          if(checkValid(board, coords)){
+            System.out.println("...placed " + piece);
+            placePiece(board, piece, coords);
+            displayBoard(board);
+            rotations = 1; // so that the next round puts it to zero and break
+          }
+          rotations--;
+        }
+      }
+    }
+  }
+
+  // for each pentomino
+  // place it on every possible place on the board
+  public static void testNewRoutine(){
+    int[][] coords;
+    int rotations;
+    Piece[][] testBoard;
+    for(Pentomino piece : pentominoes){
+      coords = piece.placeOf(); // returns coordinates of a pentomino
+      rotations = piece.getLimit(); // number of possible rotations
+      while(rotations > 0){
+        for(int row = 0; row < len; row++){           
+          for(int col = 0; col < len; col++){
+            testBoard = clearTestBoard();
+            rowPointer = row;       
+            colPointer = col;
+            if(checkValid(testBoard, coords)){
+              System.out.println();
+              displayBoard(placePieceTest(testBoard, piece, coords));
+            }
+          }
+        }
+        // done with this rotation
+        coords = piece.rotate();
+        rotations--;
+      }
+
+    }
+  }
+
+public static void buildIsland(Piece[][] board, Pentomino piece){
+    //place the pentomino dead center and store coordinates
+    ArrayList<int[]> occupied = new ArrayList<int[]>(); 
+    ArrayList<OriginPiece> originPieces = new ArrayList<OriginPiece>();   
+    int[][] initialPlace = piece.placeOf();
+    int rPoint = len/2 - 2;
+    int cPoint = len/2 - 2;
+
+    board = placeIslandPiece(board, piece, rPoint, cPoint);
+    used.add(piece);
+    displayBoard(board);
+    for (int[] pair : initialPlace){
+      int[] offset = {pair[0] + rPoint, pair[1] + cPoint};
+      OriginPiece oP = new OriginPiece(board, offset);
+      System.err.printf("Place: %s %s\n", offset[0], offset[1]);
+      occupied.add(offset);
+    }
+    // for every coordinate pair
+    // attempt to place another pentomino around it
+    for (int[] place : occupied){
+      board = growIsland(board, place);
+      displayBoard(board);
+    }
+
+  }
+
+public static Piece[][] growIsland(Piece[][] board, int[] initialPlace){
+    int xOrigin = initialPlace[0];
+    int yOrigin = initialPlace[1];
+    int[][] pentoCoords;
+    int limit;
+    boolean successful = false;
+  //  System.err.println("Attempting to grow");
+    for(Pentomino available : pentominoes){
+      //Pentomino available = new Pentomino(Piece.U);
+    //  System.err.println("Placing " + available);
+      pentoCoords = available.placeOf();
+      limit = available.getLimit(); // already have one
+      while(limit > 0 && !successful){
+        if(!used.contains(available)) {
+          if (xOrigin > 0){ // try placing on top
+            if (checkValidIsland(board, pentoCoords, xOrigin - 1, yOrigin)){
+              board = placeIslandPiece(board, available, xOrigin - 1, yOrigin);
+              used.add(available);
+              successful = true;
+              return board;
+            }
+          }
+
+          if (xOrigin < len - 1){ // try under
+            if (checkValidIsland(board, pentoCoords, xOrigin + 1, yOrigin)){
+              board = placeIslandPiece(board, available, xOrigin + 1, yOrigin);
+              used.add(available);
+              successful = true;
+              return board;
+            }
+          }
+
+          if (yOrigin > 0){ // try left
+            if (checkValidIsland(board, pentoCoords, xOrigin, yOrigin - 1)){
+              board = placeIslandPiece(board, available, xOrigin, yOrigin - 1);
+              used.add(available);
+              successful = true;
+              return board;
+            }
+          }
+
+          if (yOrigin < len - 1) { //try right
+            if (checkValidIsland(board, pentoCoords, xOrigin, yOrigin + 1)){
+              board = placeIslandPiece(board, available, xOrigin, yOrigin + 1);
+              used.add(available);
+              successful = true;
+              return board;
+            }
+          }
+        }
+        pentoCoords = available.rotate();
+        limit--;
+      }
+    }
+    return board;
+  }
+
+    /**
+  * Ensure that there are no holes.
+  */
+  public static boolean noHoles(int[][] points){
+    Piece[][] testBoard = clearTestBoard();
+    int x = 0, y = 0;
+    int lastRow = points[0][0];
+    int lastCol = points[0][1];
+
+
+    // place each piece on the test board
+    for(int[] pair: points){
+      x = pair[0] + rowPointer;
+      y = pair[1];
+      testBoard[x][y] = Piece.O; // any random piece
+      if(x > lastRow) lastRow = x;
+      if(y > lastCol) lastCol = y;
+    }
+    // System.out.printf("Last Row: %s Last Col: %s\n", lastRow, lastCol);
+    // ensure that no holes to the left
+    // x is the last row, y is the last column
+    for(int row = 0; row < lastRow; row++){
+      for(int col = 0; col < lastCol; col++){
+        
+        if(col> 0 ){// check left
+          if(testBoard[row][col - 1] == Piece.EMPTY) return false;
+        }
+      }
+    }
+    // System.out.println("valid");
+    return true; // no holes to the left
+  }
+
+  /**
+   * Places piece.
+  */
+  public static void placePiece(Piece[][] b, Pentomino pento, int[][] points){
+    int x, y;
+    for(int[] pair: points){
+      x = pair[0] + rowPointer;
+      y = pair[1] + colPointer;
+      b[x][y] = pento.pieceName();
+    }
+    // get a new rowPointer
+    for (int row = 0; row < b.length ; row++) {
+      for (int col = 0;col < b[row].length ;col++ ) {
+        if(b[row][col] == Piece.EMPTY){
+          // System.out.printf("Empty at %s %s\n", row, col );
+          rowPointer = row;
+          colPointer = col;
+          return;
+        }
+      }
+    }
+
+  }
+
+  public static Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points){
+    int x, y;
+    for(int[] pair: points){
+      x = pair[0] + rowPointer;
+      y = pair[1] + colPointer;
+      b[x][y] = pento.pieceName();
+    }
+    // get a new rowPointer
+    for (int row = 0; row < b.length ; row++) {
+      for (int col = 0;col < b[row].length ;col++ ) {
+        if(b[row][col] == Piece.EMPTY){
+          // System.out.printf("Empty at %s %s\n", row, col );
+          rowPointer = row;
+          colPointer = col;
+          return b;
+        }
+      }
+    }
+    return b;
+  }

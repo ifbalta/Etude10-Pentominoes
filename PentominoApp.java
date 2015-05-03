@@ -25,8 +25,7 @@ public class PentominoApp{
 	private static ArrayList<Pentomino> used = new ArrayList<Pentomino>();
 
 	public static void main(String[] args){
-		
-		Board b = new Board(len, Piece.R);
+	
 		Piece[][] gameBoard = clearTestBoard();
 		initGame();
 		System.out.println("PentominoApp internal implementation");
@@ -70,27 +69,27 @@ public class PentominoApp{
 		int counter = 0;
 		for (OriginPiece ooP : originPieces){
 	//		System.out.println("Surrounding: " + ++counter);
-			board = growIsland(board, ooP);
+			board = growIsland(board, ooP, piece);
 			displayBoard(board);
 		}
 		return board;
 	}
 
-	public static Piece[][] growIsland(Piece[][] board, OriginPiece origin){
+	public static Piece[][] growIsland(Piece[][] board, OriginPiece origin, Pentomino startPiece){
 		int[][] pentoCoords;
 		int xOrigin, yOrigin;
 		int limit;
 		//	System.err.println("Attempting to grow");
 		for(Pentomino available : pentominoes){
-			//Pentomino available = new Pentomino(Piece.U);
 		//	System.err.println("Placing " + available);
 			pentoCoords = available.placeOf();
 			limit = available.getLimit(); // already have one
 			while(limit > 0 && origin.isAvailable(board)){
-				if(!used.contains(available)) {
+				if(!used.contains(available) && !available.pieceName().equals(startPiece.pieceName())) {
+					System.err.println("Used: " + used);
 				//	System.err.println("Origin available? " + origin.isAvailable(board));
 					// try top
-					if(origin.top != null){
+					if(origin.top != null && !used.contains(available)){
 					//	System.out.println("I have a top");
 							xOrigin = origin.top[0];
 							yOrigin = origin.top[1];
@@ -101,7 +100,7 @@ public class PentominoApp{
 							}
 					}
 					// try bottom
-					if(origin.bottom != null){
+					if(origin.bottom != null && !used.contains(available)){
 					//	System.out.println("I have a bottom");
 							xOrigin = origin.bottom[0];
 							yOrigin = origin.bottom[1];
@@ -112,18 +111,18 @@ public class PentominoApp{
 							}
 					}
 					// try left
-					if(origin.left != null){
+					if(origin.left != null && !used.contains(available)){
 					//	System.out.println("I have a left");
 							xOrigin = origin.left[0];
 							yOrigin = origin.left[1];
-							if(checkValidIsland(copyOfBoard(board), pentoCoords, xOrigin, yOrigin, origin)){
+							if(checkValidIsland(copyOfBoard(board), pentoCoords, xOrigin - 1, yOrigin - 1, origin)){
 					//			System.out.printf("valid place: %s %s\n", xOrigin, yOrigin);
 								board = placeIslandPiece(board, available, xOrigin, yOrigin);
 								used.add(available);
 							}
 					}
 					// try right
-					if(origin.right != null){
+					if(origin.right != null && !used.contains(available)){
 					//	System.out.println("I have a right");
 							xOrigin = origin.right[0];
 							yOrigin = origin.right[1];
@@ -178,10 +177,10 @@ public class PentominoApp{
 				return false;
 			}
 		}
-		// if(origin.unfilled(b, rowPointer, colPointer, points)){
-		// 		System.err.printf("Error: Results in holes.\n");
-		// 		return false;
-		// } 
+		if(origin.unfilled(b, rowPointer, colPointer, points)){
+				System.err.printf("Error: Results in holes.\n");
+				return false;
+		} 
 		return true;//noHoles(points);
 	}
 

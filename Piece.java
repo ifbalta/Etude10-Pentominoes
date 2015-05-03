@@ -10,9 +10,7 @@
 	The INVALID Piece indicates an unused space.
 */
 public enum Piece{
-	/* 5 x 2 aray of coordinates */
-
-	EMPTY("."), INVALID(" "), DUMMY("#"),
+	EMPTY(" "), INVALID(" "), DUMMY("#"),
 	O("O"), X("X"),
 	T("T"), U("U"), 
 	V("V"), W("W"), 
