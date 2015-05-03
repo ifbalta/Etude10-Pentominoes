@@ -117,11 +117,18 @@ public class PentominoApp{
 					//	System.out.println("I have a left");
 							xOrigin = origin.left[0];
 							yOrigin = origin.left[1];
-							if(checkValidIsland(copyOfBoard(board), available, xOrigin - 1, yOrigin - 1, origin)){
+							if(checkValidIsland(copyOfBoard(board), available, xOrigin - 1, yOrigin, origin)){
 					//			System.out.printf("valid place: %s %s\n", xOrigin, yOrigin);
-								board = placeIslandPiece(board, available, xOrigin - 1, yOrigin - 1);
+								board = placeIslandPiece(board, available, xOrigin - 1, yOrigin);
 								used.add(available);
+							} else if (checkValidIsland(copyOfBoard(board), available, xOrigin - 2, yOrigin, origin)) { // try going xOrigin - 2 instead
+									board = placeIslandPiece(board, available, xOrigin - 2, yOrigin);
+									used.add(available);
+							} else if (checkValidIsland(copyOfBoard(board), available, xOrigin - 1, yOrigin - 1, origin)) { // try xOrigin - 1 
+									board = placeIslandPiece(board, available, xOrigin - 1, yOrigin - 1);												// try yOrigin - 1
+									used.add(available);
 							}
+
 					}
 					// try right
 					if(origin.right != null && !used.contains(available)){
@@ -183,13 +190,13 @@ public class PentominoApp{
 
 		}
 		if(origin.unfilled(b, rowPointer, colPointer, points)){
-				System.err.printf("Error: Does not actually fill space.\n");
+		//		System.err.printf("Error: Does not actually fill space.\n");
 				return false;
 		}
 
 		checker = new HoleChecker(b, rowPointer, colPointer, points);
 		if(!trial.pieceName().equals(starterPiece.pieceName()) && checker.hasHolesNow()){
-				System.err.printf("Error: Results in holes.\n");
+		//		System.err.printf("Error: Results in holes.\n");
 				return false;
 		}
 
