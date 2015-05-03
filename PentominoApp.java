@@ -117,7 +117,7 @@ public class PentominoApp{
 							yOrigin = origin.left[1];
 							if(checkValidIsland(copyOfBoard(board), pentoCoords, xOrigin - 1, yOrigin - 1, origin)){
 					//			System.out.printf("valid place: %s %s\n", xOrigin, yOrigin);
-								board = placeIslandPiece(board, available, xOrigin, yOrigin);
+								board = placeIslandPiece(board, available, xOrigin - 1, yOrigin - 1);
 								used.add(available);
 							}
 					}
