@@ -1,0 +1,10 @@
+# Ignore OS generated files
+*.DS_Store
+Desktop.ini
+
+# Ignore thumbnails
+._*
+Thumbs.db
+
+# Ignore binaries
+*.class
