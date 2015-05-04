@@ -157,7 +157,7 @@ public class HoleChecker{
       // check right
       if (y < board.length - 1) {
         if (board[x][y + 1] == Piece.EMPTY){
-          for (int nextPlace = y + 2; nextPlace < board.length; nextPlace++) {
+          for (int nextPlace = y + 1; nextPlace < board.length; nextPlace++) {
             if (board[x][nextPlace] != Piece.EMPTY) return board[x][nextPlace]; // bad spot
           }
         }
@@ -203,7 +203,7 @@ public class HoleChecker{
       // check below
       if (row < board.length - 1) {
         if (board[row + 1][col] == Piece.EMPTY){
-          for (int nextPlace = row + 2; row < board.length; row++) {
+          for (int nextPlace = row + 1; row < board.length; row++) {
             if (board[nextPlace][col] != Piece.EMPTY) return board[nextPlace][col]; // bad spot
           }
         }
