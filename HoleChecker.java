@@ -45,6 +45,9 @@ public class HoleChecker{
     //        System.out.printf("%s %s is an invalid loc\n", xy[0], xy[1]);
             return true; // true if has holes
           }
+          if (!allBoardChecker(board)) {
+            return true; // true if we have massive holes
+          }
         }
         return false;
     }
@@ -108,27 +111,98 @@ public class HoleChecker{
       return surroundings == surroundingLimit; // if surroundingLimit, then I'm surrounded and can't get out.
     }
 
-    public Piece rowChecker(Piece[][] board) {
+    public boolean allBoardChecker (Piece[][] board) {
+      if (rowChecker(board) != Piece.DUMMY) return false;
+      if (columnChecker(board) != Piece.DUMMY) return false;
+      return true;
+    }
+
+    /* 
+      if there is an empty piece in the middle, evaluate the row.
+    */
+    private Piece rowChecker(Piece[][] board) {
+      Piece signPost;
       // find an occupied row
-      // if there is an empty piece in the middle,
-      // check above it, if also empty ok
-      // check below, if also empty ok
-      // check right, if also empty bad.
-      // keep checking, if we continue finding empty spots, ok
-      // if we run into another Piece, then we have another problem.
-      // return offending Piece Type
+      for (int i = 0; i < board.length; i++) {
+        for (int j = 0; j < board[0].length; j++) {
+          if (board[i][j] != Piece.EMPTY) {
+            if (board[i][j + 1] == Piece.EMPTY){
+              signPost = evaluateRow(board, i, j + 1);
+              if (signPost != Piece.DUMMY) return signPost; // we hit a bad one
+            }
+          }
+        }
+      }
       return Piece.DUMMY;
     }
 
-    public Piece columnChecker(Piece[][] board) { 
-      // find an occupied column   
-      // if there is an empty piece in the middle,
-      // check to the left, if also empty ok
-      // check to the right, if also empty ok
-      // check below, if also empty bad.
-      // keep checking, if we continue finding empty spots, ok
-      // if we run into another Piece, then we have another problem.
-      // return offending Piece Type
+    /*
+      check above it, if also empty ok
+       check below, if also empty ok
+      check right, if also empty bad.
+      keep checking, if we continue finding empty spots, ok
+      if we run into another Piece, then we have another problem.
+      return offending Piece Type
+    */
+    private Piece evaluateRow (Piece[][] board, int x, int y) {
+      // check top
+      if (x > 0) {
+        if (board[x + 1][y] == Piece.EMPTY) return Piece.DUMMY;
+      }
+      // check bottom
+      if (x< board.length - 1) {
+        if (board[x + 1][y] == Piece.EMPTY) return Piece.DUMMY;
+      }
+      // check right
+      if (y < board.length - 1) {
+         for (int nextPlace = y + 1; nextPlace < board.length; nextPlace++) {
+          if (board[x][nextPlace] != Piece.EMPTY) return board[x][nextPlace]; // bad spot
+        }
+      }
+      return Piece.DUMMY;
+    }
+
+    /* find an occupied column   
+       if there is an empty piece in the middle,
+       evaluate the column
+    */
+    private Piece columnChecker(Piece[][] board) { 
+      Piece signPost;
+      for (int col = 0; col < board[0].length; col++) {
+        for (int row = 0; row < board.length; row++) {
+          if (board[row][col] != Piece.EMPTY) {
+            if (board[row + 1][col] == Piece.EMPTY) {
+              signPost = evaluateColumn(board, row + 1, col);
+              if (signPost != Piece.DUMMY) return signPost; // bad spot
+            }
+          }
+        }
+      }  
+      return Piece.DUMMY;
+    }
+      /*
+        check to the left, if also empty ok
+        check to the right, if also empty ok
+        check below, if also empty bad.
+        keep checking, if we continue finding empty spots, ok
+        if we run into another Piece, then we have another problem.
+        return offending Piece Type
+      */
+    private Piece evaluateColumn(Piece[][] board, int row, int col) {
+      // check left
+      if (col > 0) {
+        if (board[row][col - 1] == Piece.EMPTY) return Piece.DUMMY;
+      }
+      // check right
+      if (col > board[0].length) {
+        if (board[row][col + 1] == Piece.EMPTY) return Piece.DUMMY;
+      }
+      // check below
+      if (row < board.length - 1) {
+        for (int nextPlace = row + 1; row < board.length; row++) {
+          if (board[nextPlace][col] != Piece.EMPTY) return board[nextPlace][col]; // bad spot
+        }
+      }
 
       return Piece.DUMMY;
     }
