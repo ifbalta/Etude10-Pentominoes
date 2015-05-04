@@ -46,6 +46,7 @@ public class HoleChecker{
             return true; // true if has holes
           }
           if (!allBoardChecker(board)) {
+            System.out.println("Failed: allBoardChecker");
             return true; // true if we have massive holes
           }
         }
@@ -124,7 +125,7 @@ public class HoleChecker{
       Piece signPost;
       // find an occupied row
       for (int i = 0; i < board.length; i++) {
-        for (int j = 0; j < board[0].length; j++) {
+        for (int j = 0; j < board[0].length - 1; j++) {
           if (board[i][j] != Piece.EMPTY) {
             if (board[i][j + 1] == Piece.EMPTY){
               signPost = evaluateRow(board, i, j + 1);
@@ -155,8 +156,10 @@ public class HoleChecker{
       }
       // check right
       if (y < board.length - 1) {
-         for (int nextPlace = y + 1; nextPlace < board.length; nextPlace++) {
-          if (board[x][nextPlace] != Piece.EMPTY) return board[x][nextPlace]; // bad spot
+        if (board[x][y + 1] == Piece.EMPTY){
+          for (int nextPlace = y + 2; nextPlace < board.length; nextPlace++) {
+            if (board[x][nextPlace] != Piece.EMPTY) return board[x][nextPlace]; // bad spot
+          }
         }
       }
       return Piece.DUMMY;
@@ -169,7 +172,7 @@ public class HoleChecker{
     private Piece columnChecker(Piece[][] board) { 
       Piece signPost;
       for (int col = 0; col < board[0].length; col++) {
-        for (int row = 0; row < board.length; row++) {
+        for (int row = 0; row < board.length - 1; row++) {
           if (board[row][col] != Piece.EMPTY) {
             if (board[row + 1][col] == Piece.EMPTY) {
               signPost = evaluateColumn(board, row + 1, col);
@@ -199,8 +202,10 @@ public class HoleChecker{
       }
       // check below
       if (row < board.length - 1) {
-        for (int nextPlace = row + 1; row < board.length; row++) {
-          if (board[nextPlace][col] != Piece.EMPTY) return board[nextPlace][col]; // bad spot
+        if (board[row + 1][col] == Piece.EMPTY){
+          for (int nextPlace = row + 2; row < board.length; row++) {
+            if (board[nextPlace][col] != Piece.EMPTY) return board[nextPlace][col]; // bad spot
+          }
         }
       }
 
