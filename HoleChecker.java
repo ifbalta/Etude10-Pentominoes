@@ -13,9 +13,10 @@ public class HoleChecker{
       
       Piece[][] board;
       ArrayList<int[]> occupied = new ArrayList<>();
+      int surroundingLimit = 4;
 
-      public HoleChecker(Piece[][] board, int x, int y, int[][] locations){
-        
+      public HoleChecker(Piece[][] board, int x, int y, int[][] locations, String pieceName){
+        // if (pieceName.matches("[U]")) surroundingLimit = 3;
         // place piece
         for(int[] pair : locations){
           int occX = pair[0] + x;
@@ -104,14 +105,40 @@ public class HoleChecker{
       // check right
       if(y < board[0].length - 1 && board[x][y + 1] != Piece.EMPTY) surroundings++;
  //     System.out.printf("loc: %s %s is surrounded by %s %svalid\n", x, y, surroundings, surroundings == 4? "in":"");
-      return surroundings == 4; // if 4, then I'm surrounded and can't get out.
+      return surroundings == surroundingLimit; // if surroundingLimit, then I'm surrounded and can't get out.
+    }
+
+    public Piece rowChecker(Piece[][] board) {
+      // find an occupied row
+      // if there is an empty piece in the middle,
+      // check above it, if also empty ok
+      // check below, if also empty ok
+      // check right, if also empty bad.
+      // keep checking, if we continue finding empty spots, ok
+      // if we run into another Piece, then we have another problem.
+      // return offending Piece Type
+      return Piece.DUMMY;
+    }
+
+    public Piece columnChecker(Piece[][] board) { 
+      // find an occupied column   
+      // if there is an empty piece in the middle,
+      // check to the left, if also empty ok
+      // check to the right, if also empty ok
+      // check below, if also empty bad.
+      // keep checking, if we continue finding empty spots, ok
+      // if we run into another Piece, then we have another problem.
+      // return offending Piece Type
+
+      return Piece.DUMMY;
     }
 
     public static void displayBoard(Piece[][] b){
-    for(Piece[] row : b){
-      for(Piece p : row){
-        System.out.print(p.named() + " ");
-      }
+      System.out.println("hole checker");
+      for(Piece[] row : b){
+        for(Piece p : row){
+          System.out.print(p.named() + " ");
+        }
       System.out.println();
     }
   }

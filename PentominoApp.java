@@ -194,7 +194,7 @@ public class PentominoApp{
 				return false;
 		}
 
-		checker = new HoleChecker(b, rowPointer, colPointer, points);
+		checker = new HoleChecker(b, rowPointer, colPointer, points, trial.toString());
 		if(!trial.pieceName().equals(starterPiece.pieceName()) && checker.hasHolesNow()){
 		//		System.err.printf("Error: Results in holes.\n");
 				return false;

@@ -75,6 +75,7 @@ public class OriginPiece{
     for(int[] pair : locations){
       board[pair[0] + x][pair[1] + y] = Piece.DUMMY;
     }
+    displayBoard(board);
     return board[x][y] == Piece.EMPTY;
   }
 
@@ -103,6 +104,16 @@ public class OriginPiece{
       }
       //System.err.println("AVAILABLE SPACES: " + placement);
       return placement != 0; // if zero, then all spots are filled  
+  }
+
+  public static void displayBoard(Piece[][] b){
+    System.out.println("origin piece checker");
+    for(Piece[] row : b){
+      for(Piece p : row){
+        System.out.print(p.named() + " ");
+      }
+      System.out.println();
+    }
   }
 
 }
