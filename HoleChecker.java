@@ -148,7 +148,7 @@ public class HoleChecker{
     private Piece evaluateRow (Piece[][] board, int x, int y) {
       // check top
       if (x > 0) {
-        if (board[x + 1][y] == Piece.EMPTY) return Piece.DUMMY;
+        if (board[x - 1][y] == Piece.EMPTY) return Piece.DUMMY;
       }
       // check bottom
       if (x< board.length - 1) {
