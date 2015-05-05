@@ -211,14 +211,14 @@ public class HoleChecker{
       if (col > 0) {
         if (board[row][col - 1] == Piece.EMPTY) {
         //  System.out.printf("columnChecker: %s %s ok\n", row, col - 1);
-       //   return Piece.DUMMY;
+          return Piece.DUMMY;
         }
       }
       // check right
       if (col < board[0].length - 1) {
         if (board[row][col + 1] == Piece.EMPTY) {
         //  System.out.printf("columnChecker: %s %s ok\n", row, col + 1);
-        //  return Piece.DUMMY;
+          return Piece.DUMMY;
         }
       }
       // check below
