@@ -128,6 +128,7 @@ public class HoleChecker{
         for (int j = 0; j < board[0].length - 1; j++) {
           if (board[i][j] != Piece.EMPTY) {
             if (board[i][j + 1] == Piece.EMPTY){
+           //   System.out.printf("EVALUATE row: %s %s\n", i, j);
               signPost = evaluateRow(board, i, j + 1);
               if (signPost != Piece.DUMMY) return signPost; // we hit a bad one
             }
@@ -148,17 +149,27 @@ public class HoleChecker{
     private Piece evaluateRow (Piece[][] board, int x, int y) {
       // check top
       if (x > 0) {
-        if (board[x - 1][y] == Piece.EMPTY) return Piece.DUMMY;
+        if (board[x - 1][y] == Piece.EMPTY) {
+       //   System.out.printf("rowChecker: %s %s ok\n", x - 1, y);
+          return Piece.DUMMY;
+        }
       }
       // check bottom
       if (x< board.length - 1) {
-        if (board[x + 1][y] == Piece.EMPTY) return Piece.DUMMY;
+        if (board[x + 1][y] == Piece.EMPTY) {
+       //   System.out.printf("rowChecker: %s %s ok\n", x + 1, y);
+          return Piece.DUMMY;
+        }
       }
       // check right
       if (y < board.length - 1) {
         if (board[x][y + 1] == Piece.EMPTY){
+          System.out.printf("danger: consecutive empties %s %s\n", x, y + 1);
           for (int nextPlace = y + 1; nextPlace < board.length; nextPlace++) {
-            if (board[x][nextPlace] != Piece.EMPTY) return board[x][nextPlace]; // bad spot
+            if (board[x][nextPlace] != Piece.EMPTY) {
+              System.out.printf("FAILED rowChecker: consecutive empties %s %s\n",x, nextPlace );
+              return board[x][nextPlace]; // bad spot
+            } 
           }
         }
       }
@@ -175,6 +186,7 @@ public class HoleChecker{
         for (int row = 0; row < board.length - 1; row++) {
           if (board[row][col] != Piece.EMPTY) {
             if (board[row + 1][col] == Piece.EMPTY) {
+        //      System.out.printf("EVALUATE column: %s %s\n", row, col);
               signPost = evaluateColumn(board, row + 1, col);
               if (signPost != Piece.DUMMY) return signPost; // bad spot
             }
@@ -194,17 +206,27 @@ public class HoleChecker{
     private Piece evaluateColumn(Piece[][] board, int row, int col) {
       // check left
       if (col > 0) {
-        if (board[row][col - 1] == Piece.EMPTY) return Piece.DUMMY;
+        if (board[row][col - 1] == Piece.EMPTY) {
+        //  System.out.printf("columnChecker: %s %s ok\n", row, col - 1);
+          return Piece.DUMMY;
+        }
       }
       // check right
       if (col > board[0].length) {
-        if (board[row][col + 1] == Piece.EMPTY) return Piece.DUMMY;
+        if (board[row][col + 1] == Piece.EMPTY) {
+        //  System.out.printf("columnChecker: %s %s ok\n", row, col + 1);
+          return Piece.DUMMY;
+        }
       }
       // check below
       if (row < board.length - 1) {
         if (board[row + 1][col] == Piece.EMPTY){
+          System.out.printf("danger: consecutive empties %s %s\n", row + 1, col);
           for (int nextPlace = row + 1; row < board.length; row++) {
-            if (board[nextPlace][col] != Piece.EMPTY) return board[nextPlace][col]; // bad spot
+            if (board[nextPlace][col] != Piece.EMPTY) {
+              System.out.printf("FAILED columnChecker: consecutive empties %s %s\n", nextPlace, col);
+              return board[nextPlace][col]; // bad spot
+            }
           }
         }
       }
