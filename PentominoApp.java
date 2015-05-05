@@ -34,14 +34,15 @@ public class PentominoApp{
 		// for(Pentomino p :  pentominoes){
 		// 	System.out.println(p.pieceName());
 		// }
-		if(args.length == 1 && args[0].matches(PENTO_STRING)){
-			System.err.println("Received " + args[0]);
-			handleArgs(args, gameBoard);
+		if(args.length == 1 ){
+			if(args[0].matches(PENTO_STRING)){
+				System.err.println("Received " + args[0]);
+				handleArgs(args, gameBoard);
+			} else {
+				System.out.println(args[0] + " is not a pentomino");
+			}
 		} else {
-			gameBoard = buildIsland(gameBoard, pentominoes.get(11));
-			System.out.println();
-			displayBoard(gameBoard);
-			System.out.println();
+			System.out.println("Usage: java PentominoApp " + PENTO_STRING);
 		}
 	
 
