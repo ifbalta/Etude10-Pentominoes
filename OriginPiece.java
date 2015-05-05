@@ -75,7 +75,7 @@ public class OriginPiece{
     for(int[] pair : locations){
       board[pair[0] + x][pair[1] + y] = Piece.DUMMY;
     }
-    displayBoard(board);
+    // displayBoard(board);
     return board[x][y] == Piece.EMPTY;
   }
 
