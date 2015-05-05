@@ -54,6 +54,9 @@ public class PentominoApp{
 		ArrayList<OriginPiece> originPieces = new ArrayList<OriginPiece>();		
 		starterPiece = piece;
 		int[][] initialPlace = piece.placeOf();
+		if (piece.pieceName() == Piece.O) {
+			initialPlace = piece.rotate();
+		}
 		int rPoint = len/2 - 2;
 		int cPoint = len/2 - 2;
 
