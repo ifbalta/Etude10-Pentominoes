@@ -31,7 +31,7 @@ public class HoleChecker{
         for(int[] paire : occupied){
    //       System.out.println(paire[0] + " " + paire[1]);
         }
-        displayBoard(board);
+        // displayBoard(board);
 
 
         this.board = board;
@@ -46,7 +46,7 @@ public class HoleChecker{
             return true; // true if has holes
           }
           if (!allBoardChecker(board)) {
-            System.out.println("Failed: allBoardChecker");
+          //  System.out.println("Failed: allBoardChecker");
             return true; // true if we have massive holes
           }
         }
@@ -167,7 +167,7 @@ public class HoleChecker{
        //   System.out.printf("rowChecker danger: consecutive empties %s %s\n", x, y + 1);
           for (int nextPlace = y + 1; nextPlace < board.length; nextPlace++) {
             if (board[x][nextPlace] != Piece.EMPTY) {
-              System.out.printf("FAILED rowChecker: consecutive empties %s %s\n",x, nextPlace );
+           //   System.out.printf("FAILED rowChecker: consecutive empties %s %s\n",x, nextPlace );
               return Piece.INVALID; // bad spot
             } 
           }
@@ -228,7 +228,7 @@ public class HoleChecker{
           for (int nextPlace = row + 1; nextPlace < board.length; nextPlace++) {
          //   System.out.printf("next col: %s %s\n", nextPlace, col);
             if (board[nextPlace][col] != Piece.EMPTY) {
-               System.out.printf("FAILED columnChecker: consecutive empties %s %s\n", nextPlace, col);
+          //     System.out.printf("FAILED columnChecker: consecutive empties %s %s\n", nextPlace, col);
               return Piece.INVALID; // bad spot
             }
           }

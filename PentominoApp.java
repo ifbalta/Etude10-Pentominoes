@@ -73,7 +73,7 @@ public class PentominoApp{
 		for (OriginPiece ooP : originPieces){
 	//		System.out.println("Surrounding: " + ++counter);
 			board = growIsland(board, ooP, piece);
-			displayBoard(board);
+			// displayBoard(board);
 		}
 
 		/**
@@ -106,7 +106,7 @@ public class PentominoApp{
 			limit = available.getLimit(); // already have one
 			while(limit > 0 && origin.isAvailable(board)){
 				if(!used.contains(available) && !available.pieceName().equals(startPiece.pieceName())) {
-					System.err.println("Used: " + used);
+				//	System.err.println("Used: " + used);
 				//	System.err.println("Origin available? " + origin.isAvailable(board));
 					// try top
 					if(origin.top != null && !used.contains(available)){
@@ -234,13 +234,13 @@ public class PentominoApp{
 		boolean cornerStart = false;
 		for(int[] xy : points){
 			if(xy[0] == 0 && xy[1] == 0) {
-				System.err.println(pento + " starts at 0 0 ");
+				//System.err.println(pento + " starts at 0 0 ");
 				cornerStart = true;
 			}
 		}
 		// move up diagonally
 		if(!cornerStart){
-			System.err.println(pento + " does not start at  0 0");
+			//System.err.println(pento + " does not start at  0 0");
 			//rowPointer--;
 			//colPointer--;
 		}
