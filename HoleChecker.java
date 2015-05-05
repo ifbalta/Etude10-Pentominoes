@@ -222,7 +222,7 @@ public class HoleChecker{
       if (row < board.length - 1) {
         if (board[row + 1][col] == Piece.EMPTY){
           System.out.printf("columnChecker danger: consecutive empties %s %s\n", row + 1, col);
-          for (int nextPlace = row + 1; row < board.length; nextPlace++) {
+          for (int nextPlace = row + 1; nextPlace < board.length; nextPlace++) {
             System.out.printf("next col: %s %s\n", nextPlace, col);
             if (board[nextPlace][col] != Piece.EMPTY) {
               System.out.printf("FAILED columnChecker: consecutive empties %s %s\n", nextPlace, col);
