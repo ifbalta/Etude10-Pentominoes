@@ -78,6 +78,15 @@ public class PentominoApp{
 			board = growIsland(board, ooP, piece);
 			displayBoard(board);
 		}
+
+		/**
+				#### TO DO #####
+
+				If OriginPieces are not completely surrounded,
+				shufflePentominoes, and call buildIsland()
+				on a new board and the same starting piece.
+		*/
+
 		return board;
 	}
 
