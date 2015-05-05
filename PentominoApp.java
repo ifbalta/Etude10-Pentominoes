@@ -55,9 +55,6 @@ public class PentominoApp{
 		ArrayList<OriginPiece> originPieces = new ArrayList<OriginPiece>();		
 		starterPiece = piece;
 		int[][] initialPlace = piece.placeOf();
-		if (piece.pieceName() == Piece.O) {
-			initialPlace = piece.rotate();
-		}
 		int rPoint = len/2 - 2;
 		int cPoint = len/2 - 2;
 
@@ -86,6 +83,14 @@ public class PentominoApp{
 				shufflePentominoes, and call buildIsland()
 				on a new board and the same starting piece.
 		*/
+
+				for (OriginPiece finalCheck : originPieces) {
+					if (finalCheck.isAvailable(board)) {
+						Collections.shuffle(pentominoes);
+						used.clear();
+						return buildIsland(clearTestBoard(), starterPiece);
+					}
+				}
 
 		return board;
 	}
