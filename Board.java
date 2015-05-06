@@ -175,6 +175,51 @@ public class Board{
 		return b;
 	}
 
+		/**
+	 * Places piece.
+	*/
+	public static void placePiece(Piece[][] b, Pentomino pento, int[][] points){
+		int x, y;
+		for(int[] pair: points){
+			x = pair[0] + rowPointer;
+			y = pair[1] + colPointer;
+			b[x][y] = pento.pieceName();
+		}
+		// get a new rowPointer
+		for (int row = 0; row < b.length ; row++) {
+			for (int col = 0;col < b[row].length ;col++ ) {
+				if(b[row][col] == Piece.EMPTY){
+					// System.out.printf("Empty at %s %s\n", row, col );
+					rowPointer = row;
+					colPointer = col;
+					return;
+				}
+			}
+		}
+
+	}
+
+	public static Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points){
+		int x, y;
+		for(int[] pair: points){
+			x = pair[0] + rowPointer;
+			y = pair[1] + colPointer;
+			b[x][y] = pento.pieceName();
+		}
+		// get a new rowPointer
+		for (int row = 0; row < b.length ; row++) {
+			for (int col = 0;col < b[row].length ;col++ ) {
+				if(b[row][col] == Piece.EMPTY){
+					// System.out.printf("Empty at %s %s\n", row, col );
+					rowPointer = row;
+					colPointer = col;
+					return b;
+				}
+			}
+		}
+		return b;
+	}
+
 	public static void initGame(){
 		setPentominoes();
 		setBoard();
