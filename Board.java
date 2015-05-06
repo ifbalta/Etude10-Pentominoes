@@ -23,17 +23,43 @@ public class Board{
 		// for(Pentomino p :  pentominoes){
 		// 	System.out.println(p.pieceName());
 		// }
-		if(args.length == 1 && args[0].matches(PENTO_STRING)){
-			System.err.println("Received " + args[0]);
-			handleArgs(args, gameBoard);
-		} else {
-			gameBoard = buildIsland(gameBoard, pentominoes.get(11));
-			System.out.println();
-			displayBoard(gameBoard);
-			System.out.println();
-		}
+		testAllPlacements();
 	
 
+
+	}
+
+	public static void testAllPlacements(){
+		int[][] coords;
+		int rotations;
+		Piece[][] testBoard;
+		for(Pentomino piece : pentominoes){
+			coords = piece.placeOf(); // returns coordinates of a pentomino
+			rotations = piece.getLimit(); // number of possible rotations
+			while(rotations > 0){
+				rowPointer = 0;	
+				colPointer = 0;
+				testBoard = clearTestBoard();
+				System.out.println();
+				displayBoard(placePieceTest(testBoard, piece, coords));
+				coords = piece.rotate();
+				rotations--;
+			}
+
+		}
+	}
+
+	public static void testSinglePiece(){
+		Pentomino p = new Pentomino(Piece.R);
+		String name = p.pieceName().toString();
+		int[][] pts = p.placeOf();
+		int[][] rot = p.rotate();
+		int limit = p.getLimit();
+		System.out.printf("%s %s\n", name, limit);
+
+		if(checkValid(board, pts)){
+				placePiece(board, p, pts);				
+		}
 
 	}
 
@@ -64,6 +90,7 @@ public class Board{
 		int[][] pentoCoords;
 		int xOrigin, yOrigin;
 		int limit;
+
 		// for every originPiece,
 		// copy the board and attempt to surround it
 		
