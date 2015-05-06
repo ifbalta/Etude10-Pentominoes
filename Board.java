@@ -23,7 +23,7 @@ public class Board{
 		// for(Pentomino p :  pentominoes){
 		// 	System.out.println(p.pieceName());
 		// }
-		testAllPlacements();
+			testNewRoutine();
 	
 
 
@@ -41,7 +41,15 @@ public class Board{
 				colPointer = 0;
 				testBoard = clearTestBoard();
 				System.out.println();
-				displayBoard(placePieceTest(testBoard, piece, coords));
+				for (int row = 0; row < testBoard.length; row++ ) {
+					for (int col = 0; col < testBoard[0].length; col++) {
+						rowPointer = row;
+						colPointer = col;
+						displayBoard(placePieceTest(testBoard, piece, coords));
+						testBoard = clearTestBoard();
+					}
+				}
+				
 				coords = piece.rotate();
 				rotations--;
 			}
@@ -199,8 +207,42 @@ public class Board{
 
 	}
 
+		// for each pentomino
+	// place it on every possible place on the board
+	public static void testNewRoutine(){
+		int[][] coords;
+		int rotations;
+		Piece[][] testBoard;
+		for(Pentomino piece : pentominoes){
+			coords = piece.placeOf(); // returns coordinates of a pentomino
+			rotations = piece.getLimit(); // number of possible rotations
+			while(rotations > 0){
+				for(int row = 0; row < len; row++){	
+						
+				//	System.out.print(rowPointer+"  ////  ");			
+					for(int col = 0; col < len; col++){
+						testBoard = clearTestBoard();
+						rowPointer = row;
+						colPointer = col;
+						if(checkValid(testBoard, coords)){
+							System.out.println();
+							displayBoard(placePieceTest(testBoard, piece, coords));
+						}
+					}
+					//System.out.print(rowPointer);
+					//System.out.println();
+				}
+				// done with this rotation
+				coords = piece.rotate();
+				rotations--;
+			}
+
+		}
+	}
+
 	public static Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points){
 		int x, y;
+		if (!checkValid(b, points)) return null;
 		for(int[] pair: points){
 			x = pair[0] + rowPointer;
 			y = pair[1] + colPointer;

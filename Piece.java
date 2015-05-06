@@ -10,7 +10,7 @@
 	The INVALID Piece indicates an unused space.
 */
 public enum Piece{
-	EMPTY(" "), INVALID(" "), DUMMY("#"),
+	EMPTY("."), INVALID("*"), DUMMY("#"),
 	O("O"), X("X"),
 	T("T"), U("U"), 
 	V("V"), W("W"), 
