@@ -29,48 +29,6 @@ public class Board{
 
 	}
 
-	public static void testAllPlacements(){
-		int[][] coords;
-		int rotations;
-		Piece[][] testBoard;
-		for(Pentomino piece : pentominoes){
-			coords = piece.placeOf(); // returns coordinates of a pentomino
-			rotations = piece.getLimit(); // number of possible rotations
-			while(rotations > 0){
-				rowPointer = 0;	
-				colPointer = 0;
-				testBoard = clearTestBoard();
-				System.out.println();
-				for (int row = 0; row < testBoard.length; row++ ) {
-					for (int col = 0; col < testBoard[0].length; col++) {
-						rowPointer = row;
-						colPointer = col;
-						displayBoard(placePieceTest(testBoard, piece, coords));
-						testBoard = clearTestBoard();
-					}
-				}
-				
-				coords = piece.rotate();
-				rotations--;
-			}
-
-		}
-	}
-
-	public static void testSinglePiece(){
-		Pentomino p = new Pentomino(Piece.R);
-		String name = p.pieceName().toString();
-		int[][] pts = p.placeOf();
-		int[][] rot = p.rotate();
-		int limit = p.getLimit();
-		System.out.printf("%s %s\n", name, limit);
-
-		if(checkValid(board, pts)){
-				placePiece(board, p, pts);				
-		}
-
-	}
-
 	public static Piece[][] buildIsland(Piece[][] board, Pentomino piece){
 		//place the pentomino dead center and store coordinates
 		ArrayList<int[]> occupied = new ArrayList<int[]>();	
@@ -224,9 +182,13 @@ public class Board{
 						testBoard = clearTestBoard();
 						rowPointer = row;
 						colPointer = col;
-						if(checkValid(testBoard, coords)){
-							System.out.println();
-							displayBoard(placePieceTest(testBoard, piece, coords));
+						if (checkValid(testBoard, piece, rowPointer, colPointer)){
+							//System.out.println();
+							testBoard = placePieceTest(testBoard, piece, coords);
+							if (testBoard != null) {
+								System.out.println();
+								displayBoard(testBoard);
+							}
 						}
 					}
 					//System.out.print(rowPointer);
@@ -242,7 +204,10 @@ public class Board{
 
 	public static Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points){
 		int x, y;
-		if (!checkValid(b, points)) return null;
+		for (int[] locs : points) {
+			if (!checkValid(b, pento, rowPointer, colPointer)) return null;
+		}
+		
 		for(int[] pair: points){
 			x = pair[0] + rowPointer;
 			y = pair[1] + colPointer;
@@ -279,8 +244,10 @@ public class Board{
 	/**
 	 * Checks if space is available.	 
 	*/
-	public static boolean checkValid(Piece[][] b, int[][] points){
+	public static boolean checkValid(Piece[][] b, Pentomino trial, int rowPointer, int colPointer){
+		int[][] points = trial.placeOf();
 		int x, y;
+		HoleChecker checker; 
 		// for(int[] paire : points){
 		// 	System.err.printf(" (%s, %s) ", paire[0] + rowPointer, paire[1] + colPointer);
 		// }
@@ -289,18 +256,31 @@ public class Board{
 			x = pair[0] + rowPointer;
 			y = pair[1] + colPointer;
 			if(!(x >= 0 && x < len)) {
-				//System.out.println("out of row bounds : " + x);
+		//		System.err.println("out of row bounds : " + x);
 				return false;
 			}
 			if(!(y >= 0 && y < len)) {
-			//	System.out.println("out of col bounds : " + y);
+	//			System.err.println("out of col bounds : " + y);
 				return false;
 			}
 			if(b[x][y] != Piece.EMPTY){
-				//System.out.println("Error: Not a free space");
+		//		System.err.println("Error: Not a free space");
 				return false;
-			} 
+			}
+
 		}
+		// if(origin.unfilled(b, rowPointer, colPointer, points)){
+		// //		System.err.printf("Error: Does not actually fill space.\n");
+		// 		return false;
+		// }
+
+		// checker = new HoleChecker(b, rowPointer, colPointer, points, trial.toString());
+		// if(checker.hasHolesNow()){
+		// //		System.err.printf("Error: Results in holes.\n");
+		// 		return false;
+		// }
+
+
 		return true;//noHoles(points);
 	}
 
