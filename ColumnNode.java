@@ -4,7 +4,7 @@ public class ColumnNode {
   Node columnHead;
 
   public ColumnNode(Piece columnName){
-    this.columnName
+    this.columnName = columnName;
   }
 
   public ColumnNode(Piece columnName, Node columnHead) {

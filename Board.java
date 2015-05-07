@@ -2,7 +2,8 @@
 	The Pentomino Board.
 	Testing tetris style solving.
 */
-	import java.util.*;
+import java.util.*;
+import pentominoes.*;
 public class Board{
 	private static final int PENTO_PIECES = 12;
 	private static final String PENTO_STRING = "[OPQRSTUVWXYZ]"; 

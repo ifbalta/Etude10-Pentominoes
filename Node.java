@@ -1,3 +1,4 @@
+import pentominoes.*;
 public class Node {
   /* Piece name */
   Piece pieceType;
