@@ -35,7 +35,7 @@ public class Board{
 		System.out.println("Board:");
 		displayBoard(puzzleBoard);
 
-			//produceAllPossibilities(gameBoard); // this guy will create all the nodes.
+		produceAllPossibilities(gameBoard); // this guy will create all the nodes.
 	
 
 
@@ -54,70 +54,6 @@ public class Board{
 
 
 	/**
-	 * Checks if space is available.	 
-	*/
-	public static boolean checkValidIsland(Piece[][] b, int[][] points, int rowPointer, int colPointer, OriginPiece origin){
-		int x, y;
-		// for(int[] paire : points){
-		// 	System.err.printf(" (%s, %s) ", paire[0] + rowPointer, paire[1] + colPointer);
-		// }
-		// System.err.println();
-		for(int[] pair: points){
-			x = pair[0] + rowPointer;
-			y = pair[1] + colPointer;
-			if(!(x >= 0 && x < len)) {
-		//		System.err.println("out of row bounds : " + x);
-				return false;
-			}
-			if(!(y >= 0 && y < len)) {
-	//			System.err.println("out of col bounds : " + y);
-				return false;
-			}
-			if(b[x][y] != Piece.EMPTY){
-		//		System.err.println("Error: Not a free space");
-				return false;
-			}
-		}
-		// if(origin.unfilled(b, rowPointer, colPointer, points)){
-		// 		System.err.printf("Error: Results in holes.\n");
-		// 		return false;
-		// } 
-		return true;//noHoles(points);
-	}
-
-	/**
-	 * Places piece.
-	*/
-	public static Piece[][] placeIslandPiece(Piece[][] b, Pentomino pento, int rowPointer, int colPointer){
-		int[][] points = pento.placeOf();
-		int x, y;
-	//	System.out.println("placing island: " + pento);
-
-		// hack so that pieces that don't start at 0,0 can be placed properly
-		boolean cornerStart = false;
-		for(int[] xy : points){
-			if(xy[0] == 0 && xy[1] == 0) {
-				System.err.println(pento + " starts at 0 0 ");
-				cornerStart = true;
-			}
-		}
-		// move up diagonally
-		if(!cornerStart){
-			System.err.println(pento + " does not start at  0 0");
-			//rowPointer--;
-			//colPointer--;
-		}
-
-		for(int[] pair: points){
-			x = pair[0] + rowPointer;
-			y = pair[1] + colPointer;
-	//		System.out.printf("%s %s\n", x, y);
-			b[x][y] = pento.pieceName();
-		}
-		return b;
-	}
-
-		/**
 	 * Places piece.
 	*/
 	public static void placePiece(Piece[][] b, Pentomino pento, int[][] points){
