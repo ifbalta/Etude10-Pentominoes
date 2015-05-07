@@ -11,16 +11,10 @@ public class Board{
 	private Piece[][] board;
 	private Piece[][] puzzleBoard;
 	private List<Pentomino> pentominoes;
-	private List<ColumnNode> pentominoControlRow;
 	private int len = 10;	
 	private int rowPointer = 0;
 	private int colPointer = 0;
 	private ArrayList<Pentomino> used = new ArrayList<Pentomino>();
-	private List<ColumnNode> usedColumns = new ArrayList<>();
-	// maps Pentomino columns to Square placements. IAGNI!!! ~~DELETE LATER~
-	private SquarePlacement[][] squareMap;
-	private ColumnNode root;
-
 
 	public Board(ArrayList<String> puzzleStringList){
 		this.puzzleBoard = buildPuzzle(puzzleStringList);
@@ -93,7 +87,6 @@ public class Board{
 							//System.out.println();
 							puzzleBoard = placePieceTest(puzzleBoard, piece, coords);
 							System.out.println("all possibilities");
-							produceNode(piece);
 							if (puzzleBoard != null) {
 								System.out.println();
 								displayBoard(puzzleBoard);
@@ -109,57 +102,6 @@ public class Board{
 			}
 
 		}
-	}
-
-/**
-
-	
-
-*/
-	public void produceNode(Pentomino node){
-		// get the column associated with the Pentomino
-		System.out.println("producing node " + node);
-		int[][] coordinates = node.placeOf();
-		int locX, locY;
-//		System.out.println(pentominoControlRow);
-//		System.out.println(pentominoControlRow.get(node) + "  " + node);
-		ColumnNode r = pentominoControlRow.get(pentominoControlRow.indexOf(node.pieceName()));
-		Node p = new Node(node.pieceName(), coordinates[0]); // first set of coordinates
-		Node q;
-		if (r.columnHead == null) {
-			// first new node points to itself
-			r.columnHead = p; 
-			r.columnHead.up = r.columnHead;
-			r.columnHead.down = r.columnHead;
-		}
-		//point to the last one.
-		p.up = r.columnHead.up; 
-		p.down = r.columnHead;
-		//make pointers consistent
-		r.columnHead.up.down = p;
-		r.columnHead.up = p;
-		// give the node a column
-		p.nodeColumn = r;
-
-		// start connecting all the other nodes
-		for (int i = 0; i < PENTO_AREA_SIZE; i++) {
-			locX = coordinates[i][0];
-			locY = coordinates[i][1];
-			// very complicated node setup
-			q = new Node(node.pieceName(), coordinates[i]);
-			q.left = p;
-			q.right = p.right;
-			p.right.left = q;
-			p.right = q;
-			q.up = r.columnHead.up;
-			q.down = r.columnHead;
-			r.columnHead.up.down = q;
-			r.columnHead.up = q;
-			q.nodeColumn = r;
-			p = q;
-			r.columnSize++;
-		}
-
 	}
 
 	public Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points){
@@ -189,27 +131,6 @@ public class Board{
 
 	public void initGame(){
 		setPentominoes();
-		setPentominoColumns();
-	}
-
-	public void setPentominoColumns() {
-		pentominoControlRow = new ArrayList<ColumnNode>();
-		squareMap = new SquarePlacement[puzzleBoard.length][puzzleBoard[0].length];
-
-		for (Piece p : Piece.values()) {
-			if (!(p == Piece.EMPTY || p == Piece.INVALID || p == Piece.DUMMY)){
-				pentominoControlRow.add(new ColumnNode(p));
-			}
-		}
-		// init pointers of first item of doubly linked list.
-		pentominoControlRow.get(0).right = pentominoControlRow.get(1);
-		pentominoControlRow.get(0).left = pentominoControlRow.get(pentominoControlRow.size() - 1);
-		//init right pointer of last item of doubly linked list
-		pentominoControlRow.get(pentominoControlRow.size() - 1).right = pentominoControlRow.get(0);
-		for (int i = 1; i < pentominoControlRow.size() - 1; i++) {
-			pentominoControlRow.get(i).left = pentominoControlRow.get(i - 1);
-			pentominoControlRow.get(i).right = pentominoControlRow.get(i + 1);
-		}
 	}
 
 	public void setPentominoes(){
@@ -313,118 +234,6 @@ public class Board{
 			}	
 		}
 		return puzzleBoard;
-	}
-
-	/**
-		Picks the next available column.
-	*/
-	public ColumnNode chooseNextColumn(){
-		for (ColumnNode col : pentominoControlRow) {
-			if (!usedColumns.contains(col)) {
-				return col;
-			}
-		}
-		return null;
-	}
-
-	/**
-		Uncovers columns.
-	*/
-	public void uncoverColumns(ColumnNode colNode){
-		Node column = colNode.columnHead;
-		for (Node row = column.getUp(); row != column; row = row.getUp()) {
-			for (Node leftNode = row.getLeft(); leftNode != row; leftNode = leftNode.getLeft()){
-				leftNode.getUp().setDown(leftNode.getDown());
-				leftNode.getDown().setUp(leftNode.getUp());
-			}
-			column.getRight().setLeft(column.getLeft());
-			column.getLeft().setRight(column.getRight());
-		}
-	}
-
-		/**
-		Covers columns.
-	*/
-	public void coverColumns(ColumnNode colNode){
-		Node column = colNode.columnHead;
-		
-		column.getRight().setLeft(column.getLeft());
-		column.getLeft().setRight(column.getRight());
-
-		for (Node row = column.getDown(); row != column; row = row.getDown()) {
-			for (Node rightNode = row.getRight(); rightNode != row; rightNode = rightNode.getRight()){
-				rightNode.getUp().setDown(rightNode.getDown());
-				rightNode.getDown().setUp(rightNode.getUp());
-			}
-			
-		}
-	}
-
-			/**
-		Covers nodes.
-	*/
-	public void coverNodes(Node currNode){
-		Node curr = currNode;
-		
-		curr.getRight().setLeft(curr.getLeft());
-		curr.getLeft().setRight(curr.getRight());
-
-		for (Node row = curr.getDown(); row != curr; row = row.getDown()) {
-			for (Node rightNode = row.getRight(); rightNode != row; rightNode = rightNode.getRight()){
-				rightNode.getUp().setDown(rightNode.getDown());
-				rightNode.getDown().setUp(rightNode.getUp());
-			}			
-		}
-	}
-
-		/**
-		Uncovers rows.
-	*/
-	public void uncoverNodes(Node curr){
-		Node currNode = curr;
-		for (Node row = currNode.getUp(); row != currNode; row = row.getUp()) {
-			for (Node leftNode = row.getLeft(); leftNode != row; leftNode = leftNode.getLeft()){
-				leftNode.getUp().setDown(leftNode.getDown());
-				leftNode.getDown().setUp(leftNode.getUp());
-			}
-			currNode.getRight().setLeft(currNode.getLeft());
-			currNode.getLeft().setRight(currNode.getRight());
-		}
-	}
-
-// from ocf.berkley.edu
-	public ArrayList<Node> solvePuzzle(Node h, ArrayList<Node> solution){
-		if (h == h.right) {
-			return solution;
-		}
-		ColumnNode column = chooseNextColumn();
-		if (column == null) return null; // we're out of solutions
-
-		Node colHead = column.columnHead;
-		usedColumns.add(column);
-		coverColumns(column);
-
-		for (Node rowNode = colHead.getDown(); rowNode != colHead; rowNode = rowNode.getDown()) {
-			solution.add(rowNode);
-
-			for (Node rightNode = rowNode.getRight(); rightNode != rowNode; rightNode = rightNode.getRight()) {
-				coverNodes(rightNode);
-			}
-
-			// what search()???
-			solution = solvePuzzle(rowNode, solution);
-			// if we get down here, then it's unsuccessful
-			solution.remove(rowNode);
-			column = rowNode.getColumn();
-			for (Node leftNode = rowNode.getLeft(); leftNode != rowNode; leftNode = leftNode.getLeft()) {
-				uncoverNodes(leftNode);
-			}
-			uncoverColumns(column);
-		}
-
-		// if we fail, put that column back
-		usedColumns.remove(column);
-		return null;
 	}
 
 }
