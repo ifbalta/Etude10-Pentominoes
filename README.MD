@@ -5,7 +5,7 @@ uses all available pentominoes and covers the whole board.
 
 Pentominoes may not overlap.
 
-Usage: java Board
+Usage: java Board < input.txt
 
 ##Puzzle 2
 

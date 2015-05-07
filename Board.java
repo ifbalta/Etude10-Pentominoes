@@ -97,6 +97,7 @@ public class Board{
 						if (checkValid(puzzleBoard, piece, rowPointer, colPointer)){
 							//System.out.println();
 							puzzleBoard = placePieceTest(puzzleBoard, piece, coords);
+							System.out.println("all possibilities");
 							produceNode(piece);
 							if (puzzleBoard != null) {
 								System.out.println();
@@ -122,6 +123,7 @@ public class Board{
 */
 	public static void produceNode(Pentomino node){
 		// get the column associated with the Pentomino
+		System.out.println("producing node " + node);
 		int[][] coordinates = node.placeOf();
 		int locX, locY;
 		ColumnNode r = pentominoControlRow.get(pentominoControlRow.indexOf(node.pieceName()));
