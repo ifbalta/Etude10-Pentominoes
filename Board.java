@@ -7,6 +7,7 @@ public class Board{
 	private static final int PENTO_PIECES = 12;
 	private static final String PENTO_STRING = "[OPQRSTUVWXYZ]"; 
 	private static Piece[][] board;
+	private static Piece[][] puzzleBoard;
 	private static List<Pentomino> pentominoes;
 	private static int len = 10;	
 	private static int rowPointer = 0;
@@ -14,16 +15,23 @@ public class Board{
 	private static ArrayList<Pentomino> used = new ArrayList<Pentomino>();
 
 	public static void main(String[] args){
-		
+		Scanner input = new Scanner(System.in);
+		ArrayList<String> puzzleStringList = new ArrayList<>();
+		while (input.hasNextLine()) {
+			puzzleStringList.add(input.nextLine());
+		}
+		puzzleBoard = buildPuzzle(puzzleStringList);
+		displayBoard(puzzleBoard);
+
 		//Board b = new Board(len, Piece.R);
-		Piece[][] gameBoard = clearTestBoard();
-		initGame();
-		System.out.println("PentominoApp internal implementation");
+		//Piece[][] gameBoard = clearTestBoard();
+		//initGame();
+		//System.out.println("PentominoApp internal implementation");
 		
 		// for(Pentomino p :  pentominoes){
 		// 	System.out.println(p.pieceName());
 		// }
-			testNewRoutine();
+			//testNewRoutine();
 	
 
 
@@ -312,50 +320,27 @@ public class Board{
 		}
 	}
 
-	public static void handleArgs(String[] args, Piece[][] gameBoard){
-		Pentomino startPoint = null;
-		switch(args[0].charAt(0)){
-			case 'O':
-			startPoint = new Pentomino(Piece.O);
-			break;
-			case 'P':
-			startPoint = new Pentomino(Piece.P);
-			break;
-			case 'Q':
-			startPoint = new Pentomino(Piece.Q);
-			break;
-			case 'R':
-			startPoint = new Pentomino(Piece.R);
-			break;
-			case 'S':
-			startPoint = new Pentomino(Piece.S);
-			break;
-			case 'T':
-			startPoint = new Pentomino(Piece.T);
-			break;
-			case 'U':
-			startPoint = new Pentomino(Piece.U);
-			break;
-			case 'V':
-			startPoint = new Pentomino(Piece.V);
-			break;
-			case 'W':
-			startPoint = new Pentomino(Piece.W);
-			break;
-			case 'X':
-			startPoint = new Pentomino(Piece.X);
-			break;
-			case 'Y':
-			startPoint = new Pentomino(Piece.Y);
-			break;
-			case 'Z':
-			startPoint = new Pentomino(Piece.Z);
-			break;
+	public static Piece[][] buildPuzzle(ArrayList<String> input) {
+		Piece[][] puzzleBoard = new Piece[input.size()][input.get(0).length()];
+		Piece currPiece = null;
+		String curr;
+		for (int row = 0; row < input.size(); row++) {
+			curr = input.get(row);
+			for (int col = 0; col < input.get(row).length(); col++) {
+				char c = curr.charAt(col);
+				switch (c) {
+					case '.':
+						currPiece = Piece.EMPTY;
+					break;
+					case '*':
+						currPiece = Piece.INVALID;
+					break;					
+				}
+				puzzleBoard[row][col] = currPiece;
+			}	
 		}
-		gameBoard = buildIsland(gameBoard, startPoint);
-		System.out.println();
-		displayBoard(gameBoard);
-		System.out.println();
+		return puzzleBoard;
 	}
+
 
 }
