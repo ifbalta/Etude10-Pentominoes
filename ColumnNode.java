@@ -46,4 +46,8 @@ public class ColumnNode {
     this.left = replacement;
   }
 
+  public String toString(){
+    return columnName.named();
+  }
+
 }

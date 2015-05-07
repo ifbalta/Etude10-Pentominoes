@@ -5,43 +5,38 @@
 import java.util.*;
 public class Board{
 
-	private static final int PENTO_PIECES = 12;
-	private static final int PENTO_AREA_SIZE = 5; // Pentominoes occupy 5 squares only.
-	private static final String PENTO_STRING = "[OPQRSTUVWXYZ]"; 
-	private static Piece[][] board;
-	private static Piece[][] puzzleBoard;
-	private static List<Pentomino> pentominoes;
-	private static List<ColumnNode> pentominoControlRow;
-	private static int len = 10;	
-	private static int rowPointer = 0;
-	private static int colPointer = 0;
-	private static ArrayList<Pentomino> used = new ArrayList<Pentomino>();
-	private static List<ColumnNode> usedColumns = new ArrayList<>();
+	private final int PENTO_PIECES = 12;
+	private final int PENTO_AREA_SIZE = 5; // Pentominoes occupy 5 squares only.
+	private final String PENTO_STRING = "[OPQRSTUVWXYZ]"; 
+	private Piece[][] board;
+	private Piece[][] puzzleBoard;
+	private List<Pentomino> pentominoes;
+	private List<ColumnNode> pentominoControlRow;
+	private int len = 10;	
+	private int rowPointer = 0;
+	private int colPointer = 0;
+	private ArrayList<Pentomino> used = new ArrayList<Pentomino>();
+	private List<ColumnNode> usedColumns = new ArrayList<>();
 	// maps Pentomino columns to Square placements. IAGNI!!! ~~DELETE LATER~
-	private static SquarePlacement[][] squareMap;
-	private static ColumnNode root;
+	private SquarePlacement[][] squareMap;
+	private ColumnNode root;
 
 
-	public static void main(String[] args){
-		Scanner input = new Scanner(System.in);
-		ArrayList<String> puzzleStringList = new ArrayList<>();
-		while (input.hasNextLine()) {
-			puzzleStringList.add(input.nextLine());
-		}
-		puzzleBoard = buildPuzzle(puzzleStringList);
+	public Board(ArrayList<String> puzzleStringList){
+		this.puzzleBoard = buildPuzzle(puzzleStringList);
+	}
+
+	public void solveThisPuzzle(){
 		displayBoard(puzzleBoard);
 		Piece[][] gameBoard = copyOfBoard(puzzleBoard);
 		initGame();
 		System.out.println("Board:");
 		displayBoard(puzzleBoard);
 
-		produceAllPossibilities(gameBoard); // this guy will create all the nodes.
-	
-
-
+		// produceAllPossibilities(gameBoard); // this guy will create all the nodes.
 	}
 
-	public static Piece[][] copyOfBoard(Piece[][] original){
+	public Piece[][] copyOfBoard(Piece[][] original){
 		Piece [][] copied = new Piece[original.length][];
 		for (int i = 0; i < original.length; i++) {
 		  Piece[] aMatrix = original[i];
@@ -56,7 +51,7 @@ public class Board{
 	/**
 	 * Places piece.
 	*/
-	public static void placePiece(Piece[][] b, Pentomino pento, int[][] points){
+	public void placePiece(Piece[][] b, Pentomino pento, int[][] points){
 		int x, y;
 		for(int[] pair: points){
 			x = pair[0] + rowPointer;
@@ -79,7 +74,7 @@ public class Board{
 
 		// for each pentomino
 	// place it on every possible place on the board
-	public static void produceAllPossibilities(Piece[][] puzzleInput){
+	public void produceAllPossibilities(Piece[][] puzzleInput){
 		Piece[][] puzzleBoard = puzzleInput;
 		int[][] coords;
 		int rotations;
@@ -121,11 +116,13 @@ public class Board{
 	
 
 */
-	public static void produceNode(Pentomino node){
+	public void produceNode(Pentomino node){
 		// get the column associated with the Pentomino
 		System.out.println("producing node " + node);
 		int[][] coordinates = node.placeOf();
 		int locX, locY;
+//		System.out.println(pentominoControlRow);
+//		System.out.println(pentominoControlRow.get(node) + "  " + node);
 		ColumnNode r = pentominoControlRow.get(pentominoControlRow.indexOf(node.pieceName()));
 		Node p = new Node(node.pieceName(), coordinates[0]); // first set of coordinates
 		Node q;
@@ -165,7 +162,7 @@ public class Board{
 
 	}
 
-	public static Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points){
+	public Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points){
 		int x, y;
 		for (int[] locs : points) {
 			if (!checkValid(b, pento, rowPointer, colPointer)) return null;
@@ -190,17 +187,19 @@ public class Board{
 		return b;
 	}
 
-	public static void initGame(){
+	public void initGame(){
 		setPentominoes();
 		setPentominoColumns();
 	}
 
-	public static void setPentominoColumns() {
+	public void setPentominoColumns() {
 		pentominoControlRow = new ArrayList<ColumnNode>();
 		squareMap = new SquarePlacement[puzzleBoard.length][puzzleBoard[0].length];
 
 		for (Piece p : Piece.values()) {
-			pentominoControlRow.add(new ColumnNode(p));
+			if (!(p == Piece.EMPTY || p == Piece.INVALID || p == Piece.DUMMY)){
+				pentominoControlRow.add(new ColumnNode(p));
+			}
 		}
 		// init pointers of first item of doubly linked list.
 		pentominoControlRow.get(0).right = pentominoControlRow.get(1);
@@ -213,7 +212,7 @@ public class Board{
 		}
 	}
 
-	public static void setPentominoes(){
+	public void setPentominoes(){
 		pentominoes = new ArrayList<Pentomino>();
 		for(Piece p: Piece.values()){
 			if (!(p == Piece.EMPTY || p == Piece.INVALID || p == Piece.DUMMY)){
@@ -225,7 +224,7 @@ public class Board{
 	/**
 	 * Checks if space is available.	 
 	*/
-	public static boolean checkValid(Piece[][] b, Pentomino trial, int rowPointer, int colPointer){
+	public boolean checkValid(Piece[][] b, Pentomino trial, int rowPointer, int colPointer){
 		int[][] points = trial.placeOf();
 		int x, y;
 		HoleChecker checker; 
@@ -265,7 +264,7 @@ public class Board{
 		return true;//noHoles(points);
 	}
 
-	public static Piece[][] clearTestBoard(){
+	public Piece[][] clearTestBoard(){
 		Piece[][] testBoard = new Piece[len][len];
 		for(Piece[] row : testBoard){
 			for(int cell = 0; cell < testBoard[0].length ; cell++){
@@ -275,16 +274,17 @@ public class Board{
 		return testBoard;		
 	}
 
-	public static void displayBoard(Piece[][] b){
+	public void displayBoard(Piece[][] b){
 		for(Piece[] row : b){
 			for(Piece p : row){
 				System.out.print(p.named() + " ");
 			}
 			System.out.println();
 		}
+		System.out.println();
 	}
 
-	public static void setBoard(){
+	public void setBoard(){
 		board = new Piece[len][len];
 		for(int r = 0; r < len; r++){
 			for(int c = 0; c < len; c++){
@@ -293,7 +293,7 @@ public class Board{
 		}
 	}
 
-	public static Piece[][] buildPuzzle(ArrayList<String> input) {
+	public Piece[][] buildPuzzle(ArrayList<String> input) {
 		Piece[][] puzzleBoard = new Piece[input.size()][input.get(0).length()];
 		Piece currPiece = null;
 		String curr;
@@ -318,7 +318,7 @@ public class Board{
 	/**
 		Picks the next available column.
 	*/
-	public static ColumnNode chooseNextColumn(){
+	public ColumnNode chooseNextColumn(){
 		for (ColumnNode col : pentominoControlRow) {
 			if (!usedColumns.contains(col)) {
 				return col;
@@ -330,7 +330,7 @@ public class Board{
 	/**
 		Uncovers columns.
 	*/
-	public static void uncoverColumns(ColumnNode colNode){
+	public void uncoverColumns(ColumnNode colNode){
 		Node column = colNode.columnHead;
 		for (Node row = column.getUp(); row != column; row = row.getUp()) {
 			for (Node leftNode = row.getLeft(); leftNode != row; leftNode = leftNode.getLeft()){
@@ -345,7 +345,7 @@ public class Board{
 		/**
 		Covers columns.
 	*/
-	public static void coverColumns(ColumnNode colNode){
+	public void coverColumns(ColumnNode colNode){
 		Node column = colNode.columnHead;
 		
 		column.getRight().setLeft(column.getLeft());
@@ -363,7 +363,7 @@ public class Board{
 			/**
 		Covers nodes.
 	*/
-	public static void coverNodes(Node currNode){
+	public void coverNodes(Node currNode){
 		Node curr = currNode;
 		
 		curr.getRight().setLeft(curr.getLeft());
@@ -380,7 +380,7 @@ public class Board{
 		/**
 		Uncovers rows.
 	*/
-	public static void uncoverNodes(Node curr){
+	public void uncoverNodes(Node curr){
 		Node currNode = curr;
 		for (Node row = currNode.getUp(); row != currNode; row = row.getUp()) {
 			for (Node leftNode = row.getLeft(); leftNode != row; leftNode = leftNode.getLeft()){
@@ -393,7 +393,7 @@ public class Board{
 	}
 
 // from ocf.berkley.edu
-	public static ArrayList<Node> solvePuzzle(Node h, ArrayList<Node> solution){
+	public ArrayList<Node> solvePuzzle(Node h, ArrayList<Node> solution){
 		if (h == h.right) {
 			return solution;
 		}
