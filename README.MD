@@ -7,7 +7,7 @@ Pentominoes may not overlap.
 
 Usage: java Board
 
-#Puzzle 2
+##Puzzle 2
 
 Given a starting piece, ensure that all edges are surrounded by other pentominoes.
 
