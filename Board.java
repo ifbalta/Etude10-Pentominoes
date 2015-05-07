@@ -175,12 +175,18 @@ public class Board{
 		}
 	}
 
+/**
+
+	Design and implementation of Dancing Links comes from cs.ox.ac.uk
+
+*/
 	public static void produceNode(Pentomino node){
 		// get the column associated with the Pentomino
 		int[][] coordinates = node.placeOf();
 		int locX, locY;
 		ColumnNode r = pentominoControlRow.get(pentominoControlRow.indexOf(node.pieceName()));
 		Node p = new Node(node.pieceName(), coordinates[0]); // first set of coordinates
+		Node q;
 		if (r.columnHead == null) {
 			// first new node points to itself
 			r.columnHead = p; 
@@ -200,6 +206,18 @@ public class Board{
 		for (int i = 0; i < PENTO_AREA_SIZE; i++) {
 			locX = coordinates[i][0];
 			locY = coordinates[i][1];
+			// very complicated node setup
+			q = new Node(node.pieceName, coordinates[i]);
+			q.left = p;
+			q.right = p.right;
+			p.right.left = q;
+			p.right = q;
+			q.up = r.head.up;
+			q.down = r.head;
+			r.head.up.down = q;
+			r.head.up = q;
+			q.nodeColumn = r;
+			p = q;
 		}
 
 	}

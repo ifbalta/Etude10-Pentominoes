@@ -23,4 +23,8 @@ public class Node {
     this.x = location[0];
     this.y = location[1];
   }
+
+  public int[] locationOf(){
+    return location;
+  }
 }
