@@ -22,9 +22,8 @@ public class Board{
 		}
 		puzzleBoard = buildPuzzle(puzzleStringList);
 		displayBoard(puzzleBoard);
-
-		//Board b = new Board(len, Piece.R);
-		//Piece[][] gameBoard = clearTestBoard();
+		Piece[][] gameBoard = copyOfBoard(puzzleBoard);
+		setPentominoes();
 		//initGame();
 		//System.out.println("PentominoApp internal implementation");
 		
@@ -175,10 +174,9 @@ public class Board{
 
 		// for each pentomino
 	// place it on every possible place on the board
-	public static void testNewRoutine(){
+	public static void testNewRoutine(Piece[][] puzzleBoard){
 		int[][] coords;
 		int rotations;
-		Piece[][] testBoard;
 		for(Pentomino piece : pentominoes){
 			coords = piece.placeOf(); // returns coordinates of a pentomino
 			rotations = piece.getLimit(); // number of possible rotations
@@ -187,15 +185,15 @@ public class Board{
 						
 				//	System.out.print(rowPointer+"  ////  ");			
 					for(int col = 0; col < len; col++){
-						testBoard = clearTestBoard();
+						puzzleBoard = clearTestBoard();
 						rowPointer = row;
 						colPointer = col;
-						if (checkValid(testBoard, piece, rowPointer, colPointer)){
+						if (checkValid(puzzleBoard, piece, rowPointer, colPointer)){
 							//System.out.println();
-							testBoard = placePieceTest(testBoard, piece, coords);
-							if (testBoard != null) {
+							puzzleBoard = placePieceTest(puzzleBoard, piece, coords);
+							if (puzzleBoard != null) {
 								System.out.println();
-								displayBoard(testBoard);
+								displayBoard(puzzleBoard);
 							}
 						}
 					}
