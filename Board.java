@@ -177,7 +177,7 @@ public class Board{
 
 /**
 
-	Design and implementation of Dancing Links comes from cs.ox.ac.uk
+	
 
 */
 	public static void produceNode(Pentomino node){
