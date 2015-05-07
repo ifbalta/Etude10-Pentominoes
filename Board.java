@@ -4,6 +4,7 @@
 */
 import java.util.*;
 public class Board{
+
 	private static final int PENTO_PIECES = 12;
 	private static final int PENTO_AREA_SIZE = 5; // Pentominoes occupy 5 squares only.
 	private static final String PENTO_STRING = "[OPQRSTUVWXYZ]"; 
@@ -15,8 +16,11 @@ public class Board{
 	private static int rowPointer = 0;
 	private static int colPointer = 0;
 	private static ArrayList<Pentomino> used = new ArrayList<Pentomino>();
-	// maps Pentomino columns to Square placements
+	private static List<ColumnNode> usedColumns = new ArrayList<>();
+	// maps Pentomino columns to Square placements. IAGNI!!! ~~DELETE LATER~
 	private static SquarePlacement[][] squareMap;
+	private static ColumnNode root;
+
 
 	public static void main(String[] args){
 		Scanner input = new Scanner(System.in);
@@ -207,17 +211,18 @@ public class Board{
 			locX = coordinates[i][0];
 			locY = coordinates[i][1];
 			// very complicated node setup
-			q = new Node(node.pieceName, coordinates[i]);
+			q = new Node(node.pieceName(), coordinates[i]);
 			q.left = p;
 			q.right = p.right;
 			p.right.left = q;
 			p.right = q;
-			q.up = r.head.up;
-			q.down = r.head;
-			r.head.up.down = q;
-			r.head.up = q;
+			q.up = r.columnHead.up;
+			q.down = r.columnHead;
+			r.columnHead.up.down = q;
+			r.columnHead.up = q;
 			q.nodeColumn = r;
 			p = q;
+			r.columnSize++;
 		}
 
 	}
@@ -254,7 +259,7 @@ public class Board{
 
 	public static void setPentominoColumns() {
 		pentominoControlRow = new ArrayList<ColumnNode>();
-		squareMap = SquarePlacement[puzzleBoard.length][puzzleBoard[0].length];
+		squareMap = new SquarePlacement[puzzleBoard.length][puzzleBoard[0].length];
 
 		for (Piece p : Piece.values()) {
 			pentominoControlRow.add(new ColumnNode(p));
@@ -372,5 +377,116 @@ public class Board{
 		return puzzleBoard;
 	}
 
+	/**
+		Picks the next available column.
+	*/
+	public static ColumnNode chooseNextColumn(){
+		for (ColumnNode col : pentominoControlRow) {
+			if (!usedColumns.contains(col)) {
+				return col;
+			}
+		}
+		return null;
+	}
+
+	/**
+		Uncovers columns.
+	*/
+	public static void uncoverColumns(ColumnNode colNode){
+		Node column = colNode.columnHead;
+		for (Node row = column.getUp(); row != column; row = row.getUp()) {
+			for (Node leftNode = row.getLeft(); leftNode != row; leftNode = leftNode.getLeft()){
+				leftNode.getUp().setDown(leftNode.getDown());
+				leftNode.getDown().setUp(leftNode.getUp());
+			}
+			column.getRight().setLeft(column.getLeft());
+			column.getLeft().setRight(column.getRight());
+		}
+	}
+
+		/**
+		Covers columns.
+	*/
+	public static void coverColumns(ColumnNode colNode){
+		Node column = colNode.columnHead;
+		
+		column.getRight().setLeft(column.getLeft());
+		column.getLeft().setRight(column.getRight());
+
+		for (Node row = column.getDown(); row != column; row = row.getDown()) {
+			for (Node rightNode = row.getRight(); rightNode != row; rightNode = rightNode.getRight()){
+				rightNode.getUp().setDown(rightNode.getDown());
+				rightNode.getDown().setUp(rightNode.getUp());
+			}
+			
+		}
+	}
+
+			/**
+		Covers nodes.
+	*/
+	public static void coverNodes(Node currNode){
+		Node curr = currNode;
+		
+		curr.getRight().setLeft(curr.getLeft());
+		curr.getLeft().setRight(curr.getRight());
+
+		for (Node row = curr.getDown(); row != curr; row = row.getDown()) {
+			for (Node rightNode = row.getRight(); rightNode != row; rightNode = rightNode.getRight()){
+				rightNode.getUp().setDown(rightNode.getDown());
+				rightNode.getDown().setUp(rightNode.getUp());
+			}			
+		}
+	}
+
+		/**
+		Uncovers rows.
+	*/
+	public static void uncoverNodes(Node curr){
+		Node currNode = curr;
+		for (Node row = currNode.getUp(); row != currNode; row = row.getUp()) {
+			for (Node leftNode = row.getLeft(); leftNode != row; leftNode = leftNode.getLeft()){
+				leftNode.getUp().setDown(leftNode.getDown());
+				leftNode.getDown().setUp(leftNode.getUp());
+			}
+			currNode.getRight().setLeft(currNode.getLeft());
+			currNode.getLeft().setRight(currNode.getRight());
+		}
+	}
+
+// from ocf.berkley.edu
+	public static ArrayList<Node> solvePuzzle(Node h, ArrayList<Node> solution){
+		if (h == h.right) {
+			return solution;
+		}
+		ColumnNode column = chooseNextColumn();
+		if (column == null) return null; // we're out of solutions
+
+		Node colHead = column.columnHead;
+		usedColumns.add(column);
+		coverColumns(column);
+
+		for (Node rowNode = colHead.getDown(); rowNode != colHead; rowNode = rowNode.getDown()) {
+			solution.add(rowNode);
+
+			for (Node rightNode = rowNode.getRight(); rightNode != rowNode; rightNode = rightNode.getRight()) {
+				coverNodes(rightNode);
+			}
+
+			// what search()???
+			solution = solvePuzzle(rowNode, solution);
+			// if we get down here, then it's unsuccessful
+			solution.remove(rowNode);
+			column = rowNode.getColumn();
+			for (Node leftNode = rowNode.getLeft(); leftNode != rowNode; leftNode = leftNode.getLeft()) {
+				uncoverNodes(leftNode);
+			}
+			uncoverColumns(column);
+		}
+
+		// if we fail, put that column back
+		usedColumns.remove(column);
+		return null;
+	}
 
 }
