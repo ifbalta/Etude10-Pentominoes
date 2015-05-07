@@ -1,8 +1,11 @@
 /**
   Node represents a piece placement.
   It contains the information about one pentomino square.
+  Contains pointers to its row (left and right) and column (up and down)
 */
 public class Node {
+  /* Associated column */
+  ColumnNode nodeColumn;
   /* Piece name */
   Piece pieceType;
   /* Piece location */

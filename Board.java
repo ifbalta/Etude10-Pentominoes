@@ -5,6 +5,7 @@
 import java.util.*;
 public class Board{
 	private static final int PENTO_PIECES = 12;
+	private static final int PENTO_AREA_SIZE = 5; // Pentominoes occupy 5 squares only.
 	private static final String PENTO_STRING = "[OPQRSTUVWXYZ]"; 
 	private static Piece[][] board;
 	private static Piece[][] puzzleBoard;
@@ -25,12 +26,10 @@ public class Board{
 		displayBoard(puzzleBoard);
 		Piece[][] gameBoard = copyOfBoard(puzzleBoard);
 		initGame();
-		//System.out.println("PentominoApp internal implementation");
-		
-		// for(Pentomino p :  pentominoes){
-		// 	System.out.println(p.pieceName());
-		// }
-			//testNewRoutine();
+		System.out.println("Board:");
+		displayBoard(puzzleBoard);
+
+			//produceAllPossibilities(gameBoard); // this guy will create all the nodes.
 	
 
 
@@ -174,7 +173,8 @@ public class Board{
 
 		// for each pentomino
 	// place it on every possible place on the board
-	public static void testNewRoutine(Piece[][] puzzleBoard){
+	public static void produceAllPossibilities(Piece[][] puzzleInput){
+		Piece[][] puzzleBoard = puzzleInput;
 		int[][] coords;
 		int rotations;
 		for(Pentomino piece : pentominoes){
@@ -185,12 +185,13 @@ public class Board{
 						
 				//	System.out.print(rowPointer+"  ////  ");			
 					for(int col = 0; col < len; col++){
-						puzzleBoard = clearTestBoard();
+						puzzleBoard = copyOfBoard(puzzleInput);
 						rowPointer = row;
 						colPointer = col;
 						if (checkValid(puzzleBoard, piece, rowPointer, colPointer)){
 							//System.out.println();
 							puzzleBoard = placePieceTest(puzzleBoard, piece, coords);
+							produceNode(piece);
 							if (puzzleBoard != null) {
 								System.out.println();
 								displayBoard(puzzleBoard);
@@ -206,6 +207,33 @@ public class Board{
 			}
 
 		}
+	}
+
+	public static void produceNode(Pentomino node){
+		// get the column associated with the Pentomino
+		int[] coordinates = node.placeOf();
+		ColumnNode r = pentominoControlRow.get(pentominoControlRow.indexOf(node.pieceName()));
+		Node p = new Node(node.pieceName(), coordinates[0]); // first set of coordinates
+		if (r.columnHead == null) {
+			// first new node points to itself
+			r.columnHead = p; 
+			r.columnHead.up = r.columnHead;
+			r.columnHead.down = r.columnHead;
+		}
+		//point to the last one.
+		p.up = r.columnHead.up; 
+		p.down = r.columnHead;
+		//make pointers consistent
+		r.columnHead.up.down = p;
+		r.columnHead.up = p;
+		// give the node a column
+		p.nodeColumn = r;
+		
+		// start connecting all the other nodes
+		for (int i = 0; i < PENTO_AREA_SIZE; i++) {
+
+		}
+
 	}
 
 	public static Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points){
