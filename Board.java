@@ -3,13 +3,13 @@
 	Testing tetris style solving.
 */
 import java.util.*;
-import pentominoes.*;
 public class Board{
 	private static final int PENTO_PIECES = 12;
 	private static final String PENTO_STRING = "[OPQRSTUVWXYZ]"; 
 	private static Piece[][] board;
 	private static Piece[][] puzzleBoard;
 	private static List<Pentomino> pentominoes;
+	private static List<ColumnNode> pentominoControlRow;
 	private static int len = 10;	
 	private static int rowPointer = 0;
 	private static int colPointer = 0;
@@ -24,8 +24,7 @@ public class Board{
 		puzzleBoard = buildPuzzle(puzzleStringList);
 		displayBoard(puzzleBoard);
 		Piece[][] gameBoard = copyOfBoard(puzzleBoard);
-		setPentominoes();
-		//initGame();
+		initGame();
 		//System.out.println("PentominoApp internal implementation");
 		
 		// for(Pentomino p :  pentominoes){
@@ -236,7 +235,23 @@ public class Board{
 
 	public static void initGame(){
 		setPentominoes();
-		setBoard();
+		setPentominoColumns();
+	}
+
+	public static void setPentominoColumns() {
+		pentominoControlRow = new ArrayList<ColumnNode>();
+		for (Piece p : Piece.values()) {
+			pentominoControlRow.add(new ColumnNode(p));
+		}
+		// init pointers of first item of doubly linked list.
+		pentominoControlRow.get(0).right = pentominoControlRow.get(1);
+		pentominoControlRow.get(0).left = pentominoControlRow.get(pentominoControlRow.size() - 1);
+		//init right pointer of last item of doubly linked list
+		pentominoControlRow.get(pentominoControlRow.size() - 1).right = pentominoControlRow.get(0);
+		for (int i = 1; i < pentominoControlRow.size() - 1; i++) {
+			pentominoControlRow.get(i).left = pentominoControlRow.get(i - 1);
+			pentominoControlRow.get(i).right = pentominoControlRow.get(i + 1);
+		}
 	}
 
 	public static void setPentominoes(){

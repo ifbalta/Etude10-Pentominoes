@@ -1,4 +1,7 @@
-import pentominoes.*;
+/**
+  Node represents a piece placement.
+  It contains the information about one pentomino square.
+*/
 public class Node {
   /* Piece name */
   Piece pieceType;
@@ -6,8 +9,8 @@ public class Node {
   int[] location;
   int x;
   int y;
-  Node up;
-  Node down;
+  Node above;
+  Node below;
   Node left;
   Node right;
 
