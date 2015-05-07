@@ -15,6 +15,8 @@ public class Board{
 	private static int rowPointer = 0;
 	private static int colPointer = 0;
 	private static ArrayList<Pentomino> used = new ArrayList<Pentomino>();
+	// maps Pentomino columns to Square placements
+	private static SquarePlacement[][] squareMap;
 
 	public static void main(String[] args){
 		Scanner input = new Scanner(System.in);
@@ -34,42 +36,6 @@ public class Board{
 
 
 	}
-
-	public static Piece[][] buildIsland(Piece[][] board, Pentomino piece){
-		//place the pentomino dead center and store coordinates
-		ArrayList<int[]> occupied = new ArrayList<int[]>();	
-		ArrayList<OriginPiece> originPieces = new ArrayList<OriginPiece>();		
-		int[][] initialPlace = piece.placeOf();
-		int rPoint = len/2 - 2;
-		int cPoint = len/2 - 2;
-
-		board = placeIslandPiece(board, piece, rPoint, cPoint);
-		used.add(piece);
-		displayBoard(board);
-		for (int[] pair : initialPlace){
-			int[] offset = {pair[0] + rPoint, pair[1] + cPoint};
-			OriginPiece oP = new OriginPiece(board, offset);
-			originPieces.add(oP);
-			occupied.add(offset);
-		}
-		// for every coordinate pair
-		// attempt to place another pentomino around it
-		board = growIsland(board, originPieces, piece);
-		return board;
-	}
-
-	public static Piece[][] growIsland(Piece[][] board, ArrayList<OriginPiece> origins, Pentomino startPiece){
-		int[][] pentoCoords;
-		int xOrigin, yOrigin;
-		int limit;
-
-		// for every originPiece,
-		// copy the board and attempt to surround it
-		
-		return board;
-	}
-
-	public static Piece[][] tryThisBoard(){ return null; }	
 
 	public static Piece[][] copyOfBoard(Piece[][] original){
 		Piece [][] copied = new Piece[original.length][];
@@ -211,7 +177,8 @@ public class Board{
 
 	public static void produceNode(Pentomino node){
 		// get the column associated with the Pentomino
-		int[] coordinates = node.placeOf();
+		int[][] coordinates = node.placeOf();
+		int locX, locY;
 		ColumnNode r = pentominoControlRow.get(pentominoControlRow.indexOf(node.pieceName()));
 		Node p = new Node(node.pieceName(), coordinates[0]); // first set of coordinates
 		if (r.columnHead == null) {
@@ -228,10 +195,11 @@ public class Board{
 		r.columnHead.up = p;
 		// give the node a column
 		p.nodeColumn = r;
-		
+
 		// start connecting all the other nodes
 		for (int i = 0; i < PENTO_AREA_SIZE; i++) {
-
+			locX = coordinates[i][0];
+			locY = coordinates[i][1];
 		}
 
 	}
@@ -268,6 +236,8 @@ public class Board{
 
 	public static void setPentominoColumns() {
 		pentominoControlRow = new ArrayList<ColumnNode>();
+		squareMap = SquarePlacement[puzzleBoard.length][puzzleBoard[0].length];
+
 		for (Piece p : Piece.values()) {
 			pentominoControlRow.add(new ColumnNode(p));
 		}

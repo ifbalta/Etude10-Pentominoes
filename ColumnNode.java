@@ -12,6 +12,11 @@ public class ColumnNode {
   Node columnHead;
   int columnSize;
 
+  // default constructor
+  public ColumnNode(){
+    // do nothing, just to get compiler to stop complaining.
+  }
+
   public ColumnNode(Piece columnName){
     this.columnName = columnName;
     this.columnSize = 0;
@@ -27,9 +32,9 @@ public class ColumnNode {
     if (columnHead == null) return 0;
     int size = 1;
     Node curr = columnHead;
-    while (curr.below != null) {
+    while (curr.down != null) {
       size++;
-      curr = curr.below;
+      curr = curr.down;
     }
     return size;
   }

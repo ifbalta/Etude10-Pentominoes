@@ -12,8 +12,8 @@ public class Node {
   int[] location;
   int x;
   int y;
-  Node above;
-  Node below;
+  Node up;
+  Node down;
   Node left;
   Node right;
 
