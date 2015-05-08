@@ -246,6 +246,45 @@ public class HoleChecker{
       return Piece.DUMMY;
     }
 
+    public boolean allEncompassingChecker() {
+      int neighbour = 0;
+      for (int row = 0; row < board.length; row++) {
+        for (int col = 0; col < board[0].length; col++) {
+          if (board[row][col] == Piece.EMPTY) {
+            if (row > 0) {
+              if (board[row - 1][col] != Piece.EMPTY) {
+                neighbour++;
+              }
+            }
+
+            if (row < board.length - 1) {
+              if(board[row + 1][col] != Piece.EMPTY) {
+                neighbour++;
+              }
+            }
+
+            if (col > 0) {
+              if (board[row][col - 1] != Piece.EMPTY) {
+                neighbour++;
+              }
+            }
+
+            if (col < board[0].length - 1){
+              if(board[row][col + 1] != Piece.EMPTY){
+                neighbour++;
+              }
+            }
+
+            if (neighbour == 4) {
+              return true; //  true if has holes
+            }
+
+          }
+        }
+      }
+      return false;
+    }
+
     public static void displayBoard(Piece[][] b){
       System.out.println("hole checker");
       for(Piece[] row : b){

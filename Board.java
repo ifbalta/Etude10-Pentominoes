@@ -16,7 +16,7 @@ public class Board{
 	private int rowPointer = 0;
 	private int colPointer = 0;
 	private boolean succesfulPlacement = false;
-	private ArrayList<Pentomino> used = new ArrayList<Pentomino>();
+	private ArrayList<Pentomino> usedPentominoes = new ArrayList<Pentomino>();
 	private Map<Piece, ArrayList<int[][]>> pentoMap = new HashMap<>();
 
 	public Board(ArrayList<String> puzzleStringList){
@@ -24,23 +24,60 @@ public class Board{
 	}
 
 	public void solveThisPuzzle(){
-		displayBoard(puzzleBoard);
 		Piece[][] gameBoard = copyOfBoard(puzzleBoard);
 		initGame();
-		System.out.println("Board:");
-		displayBoard(puzzleBoard);
+		System.out.println("Puzzle 1:");
+		//displayBoard(puzzleBoard);
 
 		//tryAllPlacements(copyOfBoard(puzzleBoard));
 		produceAllPossibilities(gameBoard); // this guy will create all the nodes.
-		beginSolving();
+		gameBoard = beginSolving();
+		if (gameBoard == null) {
+			System.out.println("No solution.");
+		}
 	}
 
+	/*
+	* Choose a starting rotation, then choose the next pentominoes.
+	*/
 	public Piece[][] beginSolving(){
-		Piece[][] testBoard = copyOfBoard(puzzleBoard);
-		for (Pentomino p : pentominoes) {
-			testBoard = pickAPlacement(p, testBoard);
-			displayBoard(testBoard);
+		Random rand = new Random();
+		Piece[][] solvingBoard = copyOfBoard(puzzleBoard);
+		Pentomino startPentomino = pentominoes.get(rand.nextInt(pentominoes.size()));
+		System.out.println("starting: " + startPentomino);
+		ArrayList<int[][]> firstPentominoPlacement = pentoMap.get(startPentomino.pieceName());
+
+		for (int[][] row : firstPentominoPlacement) {
+			if(testOnBoard(solvingBoard, row)) {
+				for (int[] loc : row) {
+	  			solvingBoard[loc[0]][loc[1]] = startPentomino.pieceName();	  			
+  			}
+  			usedPentominoes.add(startPentomino);
+  			solvingBoard = chooseNextPentominoes();  			
+  			if (usedPentominoes.size() != pentominoes.size()) {
+  				// we haven't used everybody.
+  				displayBoard(solvingBoard);
+  				usedPentominoes.clear();
+  				solvingBoard = copyOfBoard(puzzleBoard);
+  			} else {
+  				displayBoard(solvingBoard);
+  				System.out.println("USED: " + usedPentominoes.size());
+  				return solvingBoard;
+  			}  			
+			}
 		}
+		return null;
+	}
+
+	public Piece[][] chooseNextPentominoes(){
+		Piece[][] testBoard = copyOfBoard(puzzleBoard);
+			for (Pentomino p : pentominoes) {
+				if(!usedPentominoes.contains(p)){
+					testBoard = pickAPlacement(p, testBoard);
+				}
+				//displayBoard(testBoard);
+			}
+		// displayBoard(testBoard);
 		return testBoard;
 	}
 
@@ -52,6 +89,7 @@ public class Board{
 				for (int[] loc : row) {
 	  			copiedBoard[loc[0]][loc[1]] = piece.pieceName();	  			
   			}
+  			usedPentominoes.add(piece);
   			return copiedBoard;
 			}
 		}
@@ -71,6 +109,7 @@ public class Board{
   	// ensure that placement doesn't result in holes
   	checker = new HoleChecker(guineaPig, coords);
   	if(checker.hasHolesNow()) return false;
+  	if(checker.allEncompassingChecker()) return false;
 
   	return true;
   }
@@ -98,25 +137,14 @@ public class Board{
       rotations = piece.getLimit(); // number of possible rotations
       while(rotations > 0){
         for(int row = 0; row < len; row++){ 
-            
-        //  System.out.print(rowPointer+"  ////  ");      
           for(int col = 0; col < len; col++){
             puzzleBoard = copyOfBoard(puzzleInput);
             rowPointer = row;
             colPointer = col;
             if (checkValid(puzzleBoard, piece, rowPointer, colPointer)){
-              //System.out.println();
-              // puzzleBoard = placePieceTest(puzzleBoard, piece, coords);
               addToMap(piece, coords, rowPointer, colPointer);
-              // System.out.println("all possibilities");
-              // if (puzzleBoard != null) {
-              //   System.out.println();
-              //   displayBoard(puzzleBoard);
-              // }
             }
           }
-          //System.out.print(rowPointer);
-          //System.out.println();
         }
         // done with this rotation
         coords = piece.rotate();
