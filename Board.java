@@ -34,6 +34,8 @@ public class Board{
 		gameBoard = beginSolving();
 		if (gameBoard == null) {
 			System.out.println("No solution.");
+		} else {
+			displayBoard(gameBoard);
 		}
 	}
 
@@ -44,7 +46,7 @@ public class Board{
 		Random rand = new Random();
 		Piece[][] solvingBoard = copyOfBoard(puzzleBoard);
 		Pentomino startPentomino = pentominoes.get(rand.nextInt(pentominoes.size()));
-		System.out.println("starting: " + startPentomino);
+		System.err.println("starting: " + startPentomino);
 		ArrayList<int[][]> firstPentominoPlacement = pentoMap.get(startPentomino.pieceName());
 
 		for (int[][] row : firstPentominoPlacement) {
@@ -53,7 +55,7 @@ public class Board{
 	  			solvingBoard[loc[0]][loc[1]] = startPentomino.pieceName();	  			
   			}
   			usedPentominoes.add(startPentomino);
-  			solvingBoard = chooseNextPentominoes();  			
+  			solvingBoard = chooseNextPentominoes(solvingBoard);  			
   			if (usedPentominoes.size() != pentominoes.size()) {
   				// we haven't used everybody.
   				displayBoard(solvingBoard);
@@ -63,14 +65,15 @@ public class Board{
   				displayBoard(solvingBoard);
   				System.out.println("USED: " + usedPentominoes.size());
   				return solvingBoard;
-  			}  			
+  			}  			 
+  			// System.out.println("Looping through.");
 			}
 		}
 		return null;
 	}
 
-	public Piece[][] chooseNextPentominoes(){
-		Piece[][] testBoard = copyOfBoard(puzzleBoard);
+	public Piece[][] chooseNextPentominoes(Piece[][] solvingBoard){
+		Piece[][] testBoard = copyOfBoard(solvingBoard);
 			for (Pentomino p : pentominoes) {
 				if(!usedPentominoes.contains(p)){
 					testBoard = pickAPlacement(p, testBoard);
