@@ -247,10 +247,11 @@ public class HoleChecker{
     }
 
     public boolean allEncompassingChecker() {
-      int neighbour = 0;
+      int neighbour;
       for (int row = 0; row < board.length; row++) {
         for (int col = 0; col < board[0].length; col++) {
           if (board[row][col] == Piece.EMPTY) {
+            neighbour = 0;
             if (row > 0) {
               if (board[row - 1][col] != Piece.EMPTY) {
                 neighbour++;

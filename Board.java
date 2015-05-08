@@ -74,14 +74,32 @@ public class Board{
 
 	public Piece[][] chooseNextPentominoes(Piece[][] solvingBoard){
 		Piece[][] testBoard = copyOfBoard(solvingBoard);
+		Piece[][] tentative = copyOfBoard(solvingBoard);
 			for (Pentomino p : pentominoes) {
 				if(!usedPentominoes.contains(p)){
-					testBoard = pickAPlacement(p, testBoard);
+					tentative = pickAPlacement(p, testBoard);
+					if (tentative == null) {
+						// delete the previous pentomino
+						testBoard = erasePreviousMove(usedPentominoes.get(usedPentominoes.size() - 1), testBoard);
+						usedPentominoes.remove(usedPentominoes.get(usedPentominoes.size() - 1));
+					}
 				}
-				//displayBoard(testBoard);
-			}
+				displayBoard(testBoard);
+		}
 		// displayBoard(testBoard);
 		return testBoard;
+	}
+
+	public Piece[][] erasePreviousMove(Pentomino prev, Piece[][] prevBoard){
+		Piece prevPiece = prev.pieceName();
+		for (int row = 0; row < prevBoard.length; row++) {
+			for (int col = 0; col < prevBoard[0].length; col++) {
+				if (prevBoard[row][col] == prevPiece) {
+					prevBoard[row][col] = Piece.EMPTY;
+				}
+			}
+		}
+		return prevBoard;
 	}
 
 	public Piece[][] pickAPlacement(Pentomino piece, Piece[][] copiedBoard){
@@ -96,7 +114,7 @@ public class Board{
   			return copiedBoard;
 			}
 		}
-		return copiedBoard;
+		return null;
 	}
 
 	/*
@@ -111,7 +129,7 @@ public class Board{
   	}
   	// ensure that placement doesn't result in holes
   	checker = new HoleChecker(guineaPig, coords);
-  	if(checker.hasHolesNow()) return false;
+	  if(checker.hasHolesNow()) return false;
   	if(checker.allEncompassingChecker()) return false;
 
   	return true;
