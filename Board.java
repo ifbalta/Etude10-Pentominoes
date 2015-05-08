@@ -31,7 +31,7 @@ public class Board{
 
 		//tryAllPlacements(copyOfBoard(puzzleBoard));
 		produceAllPossibilities(gameBoard); // this guy will create all the nodes.
-		gameBoard = beginSolving();
+		gameBoard = beginDfsSolving(copyOfBoard(puzzleBoard));
 		if (gameBoard == null) {
 			System.out.println("No solution.");
 		} else {
@@ -81,13 +81,64 @@ public class Board{
 					if (tentative == null) {
 						// delete the previous pentomino
 						testBoard = erasePreviousMove(usedPentominoes.get(usedPentominoes.size() - 1), testBoard);
-						usedPentominoes.remove(usedPentominoes.get(usedPentominoes.size() - 1));
 					}
 				}
 				displayBoard(testBoard);
 		}
 		// displayBoard(testBoard);
 		return testBoard;
+	}
+
+	public Piece[][] beginDfsSolving(Piece[][] puzzleBoard){
+		ArrayList<Pentomino> orderList = new ArrayList<>();
+		Piece[][] testBoard = copyOfBoard(puzzleBoard);
+		orderList.addAll(pentominoes);
+		Collections.shuffle(orderList);
+		Pentomino start = orderList.get(0);
+		ArrayList<int[][]> starterLocations = pentoMap.get(start.pieceName());
+
+		for(int[][] location : starterLocations){
+			if(testOnBoard(testBoard, location)) {
+				testBoard = placeOnBoard(testBoard, location, start);
+				displayBoard(testBoard);
+				testBoard = dfsPentomino(1, testBoard, orderList); // choose next pentomino
+				if (testBoard != null && usedPentominoes.size() == pentominoes.size()) {
+					return testBoard;
+				} else {
+					testBoard = copyOfBoard(puzzleBoard);
+					usedPentominoes.remove(start);
+				} 
+			}
+		}
+		return null;
+	}
+
+	public Piece[][] placeOnBoard(Piece[][] copiedBoard, int[][] location, Pentomino piece){
+		for (int[] loc : location) {
+	  			copiedBoard[loc[0]][loc[1]] = piece.pieceName();	  			
+  			}
+  			usedPentominoes.add(piece);
+  			return copiedBoard;
+	}
+
+	public Piece[][] dfsPentomino(int sourcePos, Piece[][] partialBoard, ArrayList<Pentomino> orderList){
+		Piece[][] dummyBoard = copyOfBoard(partialBoard);
+		Piece[][] resultBoard;
+		Pentomino currPiece = orderList.get(sourcePos);
+		ArrayList<int[][]> locations = pentoMap.get(currPiece.pieceName());
+		for(int[][] row : locations){
+			if(testOnBoard(dummyBoard, row)) {
+				partialBoard = placeOnBoard(partialBoard, row, currPiece);
+				displayBoard(partialBoard);
+				resultBoard = dfsPentomino(sourcePos + 1, copyOfBoard(partialBoard), orderList);
+				if (resultBoard != null) {
+					return resultBoard;
+				} else {
+					partialBoard = erasePreviousMove(currPiece, partialBoard);
+				}
+			}
+		}
+		return null;
 	}
 
 	public Piece[][] erasePreviousMove(Pentomino prev, Piece[][] prevBoard){
@@ -99,6 +150,7 @@ public class Board{
 				}
 			}
 		}
+		usedPentominoes.remove(prev);
 		return prevBoard;
 	}
 
