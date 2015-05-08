@@ -27,16 +27,24 @@ public class HoleChecker{
             board[occX][occY] = Piece.DUMMY;
           }
         }
-    //    System.out.println("trial board locations: ");
-        for(int[] paire : occupied){
-   //       System.out.println(paire[0] + " " + paire[1]);
-        }
         // displayBoard(board);
 
 
         this.board = board;
         
       }
+
+      /*
+      * Constructor for Puzzle 1
+      */
+      public HoleChecker(Piece[][] board, int[][] locations){
+        for (int[] row : locations) {
+          board[row[0]][row[1]] = Piece.DUMMY;
+          occupied.add(row);
+        }
+        this.board = board;
+      }
+
 
     public boolean hasHolesNow(){
       for(int[] xy : occupied){
@@ -162,10 +170,10 @@ public class HoleChecker{
         }
       }
       // check right
-      if (y < board.length - 1) {
+      if (y < board[0].length - 1) {
         if (board[x][y + 1] == Piece.EMPTY){
        //   System.out.printf("rowChecker danger: consecutive empties %s %s\n", x, y + 1);
-          for (int nextPlace = y + 1; nextPlace < board.length; nextPlace++) {
+          for (int nextPlace = y + 1; nextPlace < board[0].length; nextPlace++) {
             if (board[x][nextPlace] != Piece.EMPTY) {
            //   System.out.printf("FAILED rowChecker: consecutive empties %s %s\n",x, nextPlace );
               return Piece.INVALID; // bad spot

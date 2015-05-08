@@ -8,13 +8,16 @@ public class Board{
 	private final int PENTO_PIECES = 12;
 	private final int PENTO_AREA_SIZE = 5; // Pentominoes occupy 5 squares only.
 	private final String PENTO_STRING = "[OPQRSTUVWXYZ]"; 
+	private final int MAX_TRIES = 100;
 	private Piece[][] board;
 	private Piece[][] puzzleBoard;
-	private List<Pentomino> pentominoes;
+	private ArrayList<Pentomino> pentominoes;
 	private int len = 10;	
 	private int rowPointer = 0;
 	private int colPointer = 0;
+	private boolean succesfulPlacement = false;
 	private ArrayList<Pentomino> used = new ArrayList<Pentomino>();
+	private Map<Piece, ArrayList<int[][]>> pentoMap = new HashMap<>();
 
 	public Board(ArrayList<String> puzzleStringList){
 		this.puzzleBoard = buildPuzzle(puzzleStringList);
@@ -27,8 +30,51 @@ public class Board{
 		System.out.println("Board:");
 		displayBoard(puzzleBoard);
 
-		// produceAllPossibilities(gameBoard); // this guy will create all the nodes.
+		//tryAllPlacements(copyOfBoard(puzzleBoard));
+		produceAllPossibilities(gameBoard); // this guy will create all the nodes.
+		beginSolving();
 	}
+
+	public Piece[][] beginSolving(){
+		Piece[][] testBoard = copyOfBoard(puzzleBoard);
+		for (Pentomino p : pentominoes) {
+			testBoard = pickAPlacement(p, testBoard);
+			displayBoard(testBoard);
+		}
+		return testBoard;
+	}
+
+	public Piece[][] pickAPlacement(Pentomino piece, Piece[][] copiedBoard){
+		ArrayList<int[][]> availablePlacements = pentoMap.get(piece.pieceName());
+		for (int[][] row : availablePlacements) {
+			// we're fine, go ahead and place.
+			if (testOnBoard(copiedBoard, row)) {
+				for (int[] loc : row) {
+	  			copiedBoard[loc[0]][loc[1]] = piece.pieceName();	  			
+  			}
+  			return copiedBoard;
+			}
+		}
+		return copiedBoard;
+	}
+
+	/*
+  * Checks that none of the coordinates are filled.
+  */
+  public boolean testOnBoard(Piece[][] testBoard, int[][] coords){
+  	Piece[][] guineaPig = copyOfBoard(testBoard);
+  	HoleChecker checker;
+  	// ensure that places are available
+  	for (int[] loc : coords) {
+  		if (testBoard[loc[0]][loc[1]] != Piece.EMPTY) return false; // occupied
+  	}
+  	// ensure that placement doesn't result in holes
+  	checker = new HoleChecker(guineaPig, coords);
+  	if(checker.hasHolesNow()) return false;
+
+  	return true;
+  }
+	
 
 	public Piece[][] copyOfBoard(Piece[][] original){
 		Piece [][] copied = new Piece[original.length][];
@@ -41,6 +87,60 @@ public class Board{
 		return copied;
 	}
 
+	// for each pentomino
+  // place it on every possible place on the board
+  public void produceAllPossibilities(Piece[][] puzzleInput){
+    Piece[][] puzzleBoard = puzzleInput;
+    int[][] coords;
+    int rotations;
+    for(Pentomino piece : pentominoes){
+      coords = piece.placeOf(); // returns coordinates of a pentomino
+      rotations = piece.getLimit(); // number of possible rotations
+      while(rotations > 0){
+        for(int row = 0; row < len; row++){ 
+            
+        //  System.out.print(rowPointer+"  ////  ");      
+          for(int col = 0; col < len; col++){
+            puzzleBoard = copyOfBoard(puzzleInput);
+            rowPointer = row;
+            colPointer = col;
+            if (checkValid(puzzleBoard, piece, rowPointer, colPointer)){
+              //System.out.println();
+              // puzzleBoard = placePieceTest(puzzleBoard, piece, coords);
+              addToMap(piece, coords, rowPointer, colPointer);
+              // System.out.println("all possibilities");
+              // if (puzzleBoard != null) {
+              //   System.out.println();
+              //   displayBoard(puzzleBoard);
+              // }
+            }
+          }
+          //System.out.print(rowPointer);
+          //System.out.println();
+        }
+        // done with this rotation
+        coords = piece.rotate();
+        rotations--;
+      }
+
+    }
+  }
+
+  /*
+  * Method for storing all possibilities
+  */
+  public void addToMap(Pentomino piece, int[][] coords, int rowPt, int colPt){
+  	ArrayList<int[][]> holder;
+  	int x, y;
+  	int[][] offsetCoords = new int[5][2];
+		for(int i = 0; i < coords.length; i++){
+			offsetCoords[i][0] = coords[i][0] + rowPt;
+			offsetCoords[i][1] = coords[i][1] + colPt;
+		}
+		holder = pentoMap.get(piece.pieceName());
+		holder.add(offsetCoords);
+		pentoMap.put(piece.pieceName(), holder);
+  }
 
 	/**
 	 * Places piece.
@@ -66,66 +166,90 @@ public class Board{
 
 	}
 
-		// for each pentomino
-	// place it on every possible place on the board
-	public void produceAllPossibilities(Piece[][] puzzleInput){
-		Piece[][] puzzleBoard = puzzleInput;
-		int[][] coords;
-		int rotations;
-		for(Pentomino piece : pentominoes){
-			coords = piece.placeOf(); // returns coordinates of a pentomino
-			rotations = piece.getLimit(); // number of possible rotations
-			while(rotations > 0){
-				for(int row = 0; row < len; row++){	
-						
-				//	System.out.print(rowPointer+"  ////  ");			
-					for(int col = 0; col < len; col++){
-						puzzleBoard = copyOfBoard(puzzleInput);
-						rowPointer = row;
-						colPointer = col;
-						if (checkValid(puzzleBoard, piece, rowPointer, colPointer)){
-							//System.out.println();
-							puzzleBoard = placePieceTest(puzzleBoard, piece, coords);
-							System.out.println("all possibilities");
-							if (puzzleBoard != null) {
-								System.out.println();
-								displayBoard(puzzleBoard);
-							}
-						}
+	public Piece[][] tryAllPlacements(Piece[][] board) {
+		int tries = 0;
+		ArrayList<Pentomino> availablePentominoes = new ArrayList<>();
+		ArrayList<Pentomino> usedPentominoes = new ArrayList<>();
+		availablePentominoes.addAll(pentominoes);
+		// for each piece, try and place them.
+		while(usedPentominoes.size() != availablePentominoes.size()){
+			for (Pentomino piece : availablePentominoes) {
+				if (!usedPentominoes.contains(piece)){
+					board = findASpot(board, piece);
+					if (succesfulPlacement) {
+						usedPentominoes.add(piece);
 					}
-					//System.out.print(rowPointer);
-					//System.out.println();
+					tries++;
+					if (tries == MAX_TRIES) {
+						Collections.shuffle(pentominoes);
+						return tryAllPlacements(copyOfBoard(puzzleBoard)); // copy the original board again.
+					}
 				}
-				// done with this rotation
-				coords = piece.rotate();
-				rotations--;
 			}
-
+			displayBoard(board);
 		}
+
+		if (isNotCompletelyFilled(board)) {
+			Collections.shuffle(pentominoes);
+			return tryAllPlacements(copyOfBoard(puzzleBoard)); // copy the original board again.
+		}
+		return board;
 	}
 
-	public Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points){
-		int x, y;
-		for (int[] locs : points) {
-			if (!checkValid(b, pento, rowPointer, colPointer)) return null;
-		}
-		
-		for(int[] pair: points){
-			x = pair[0] + rowPointer;
-			y = pair[1] + colPointer;
-			b[x][y] = pento.pieceName();
-		}
-		// get a new rowPointer
-		for (int row = 0; row < b.length ; row++) {
-			for (int col = 0;col < b[row].length ;col++ ) {
-				if(b[row][col] == Piece.EMPTY){
-					// System.out.printf("Empty at %s %s\n", row, col );
-					rowPointer = row;
-					colPointer = col;
-					return b;
-				}
+	public boolean isNotCompletelyFilled(Piece[][] board) {
+		for (Piece[] row : board) {
+			for (Piece cell : row ) {
+				if (cell == Piece.EMPTY) return true;
 			}
 		}
+		return false;
+	}
+
+	public Piece[][] findASpot(Piece[][] board, Pentomino piece){
+		int[][] coords;
+		int rowPt, colPt;
+		int rotations = piece.getLimit();
+		// reset
+		succesfulPlacement = false;
+		while (rotations > 0) {
+			System.out.printf("rotation %s\n", rotations);
+			coords = piece.placeOf();
+			// find a spot
+			for (int row = 0; row < board.length; row++ ) {
+				for (int col = 0; col < board[0].length ; col++) {
+					if (board[row][col] == Piece.EMPTY) {
+						rowPt = row;
+						colPt = col;
+						if (checkValid(board, piece, rowPt, colPt)) {
+							board = placePieceTest(board, piece, coords, rowPt, colPt);
+							succesfulPlacement = true;
+							System.out.println("Successful " + piece);
+							displayBoard(board);
+							return board;
+						}
+					}
+				}
+			}
+			piece.rotate();
+			rotations--;
+		}
+		System.out.println("Unsuccessful " + piece);
+		displayBoard(board);
+		return board;
+	}
+
+
+
+
+	public Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points, int rowPt, int colPt){
+		int x, y;
+
+		for(int[] pair: points){
+			x = pair[0] + rowPt;
+			y = pair[1] + colPt;
+			b[x][y] = pento.pieceName();
+		}
+
 		return b;
 	}
 
@@ -138,6 +262,7 @@ public class Board{
 		for(Piece p: Piece.values()){
 			if (!(p == Piece.EMPTY || p == Piece.INVALID || p == Piece.DUMMY)){
 				pentominoes.add(new Pentomino(p));
+				pentoMap.put(p, new ArrayList<>());
 			}
 		}
 	}
@@ -146,6 +271,7 @@ public class Board{
 	 * Checks if space is available.	 
 	*/
 	public boolean checkValid(Piece[][] b, Pentomino trial, int rowPointer, int colPointer){
+	//	System.out.println("check valid " + trial);
 		int[][] points = trial.placeOf();
 		int x, y;
 		HoleChecker checker; 
@@ -156,16 +282,16 @@ public class Board{
 		for(int[] pair: points){
 			x = pair[0] + rowPointer;
 			y = pair[1] + colPointer;
-			if(!(x >= 0 && x < len)) {
-		//		System.err.println("out of row bounds : " + x);
+			if(!(x >= 0 && x < b.length)) {
+//				System.err.println("out of row bounds : " + x);
 				return false;
 			}
-			if(!(y >= 0 && y < len)) {
-	//			System.err.println("out of col bounds : " + y);
+			if(!(y >= 0 && y < b[0].length)) {
+//				System.err.println("out of col bounds : " + y);
 				return false;
 			}
 			if(b[x][y] != Piece.EMPTY){
-		//		System.err.println("Error: Not a free space");
+//				System.err.println("Error: Not a free space");
 				return false;
 			}
 

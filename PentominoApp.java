@@ -60,7 +60,6 @@ public class PentominoApp{
 
 		board = placeIslandPiece(board, piece, rPoint, cPoint);
 		used.add(piece);
-		displayBoard(board);
 		for (int[] pair : initialPlace){
 			int[] offset = {pair[0] + rPoint, pair[1] + cPoint};
 			OriginPiece oP = new OriginPiece(board, offset);

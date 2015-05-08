@@ -314,3 +314,41 @@ public static Piece[][] growIsland(Piece[][] board, int[] initialPlace){
     }
     return b;
   }
+
+      // for each pentomino
+  // place it on every possible place on the board
+  public void produceAllPossibilities(Piece[][] puzzleInput){
+    Piece[][] puzzleBoard = puzzleInput;
+    int[][] coords;
+    int rotations;
+    for(Pentomino piece : pentominoes){
+      coords = piece.placeOf(); // returns coordinates of a pentomino
+      rotations = piece.getLimit(); // number of possible rotations
+      while(rotations > 0){
+        for(int row = 0; row < len; row++){ 
+            
+        //  System.out.print(rowPointer+"  ////  ");      
+          for(int col = 0; col < len; col++){
+            puzzleBoard = copyOfBoard(puzzleInput);
+            rowPointer = row;
+            colPointer = col;
+            if (checkValid(puzzleBoard, piece, rowPointer, colPointer)){
+              //System.out.println();
+              puzzleBoard = placePieceTest(puzzleBoard, piece, coords);
+              System.out.println("all possibilities");
+              if (puzzleBoard != null) {
+                System.out.println();
+                displayBoard(puzzleBoard);
+              }
+            }
+          }
+          //System.out.print(rowPointer);
+          //System.out.println();
+        }
+        // done with this rotation
+        coords = piece.rotate();
+        rotations--;
+      }
+
+    }
+  }
