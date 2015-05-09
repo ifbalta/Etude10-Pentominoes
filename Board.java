@@ -124,7 +124,7 @@ public class Board{
 	public Piece[][] dfsPentomino(int sourcePos, Piece[][] partialBoard, ArrayList<Pentomino> orderList){
 		Piece[][] dummyBoard = copyOfBoard(partialBoard);
 		Piece[][] resultBoard;
-		if(sourcePos == pentominoes.size()) return partialBoard; // found the solution
+		if(sourcePos == orderList.size()) return partialBoard; // found the solution
 		Pentomino currPiece = orderList.get(sourcePos);
 		ArrayList<int[][]> locations = pentoMap.get(currPiece.pieceName());
 		for(int[][] row : locations){
