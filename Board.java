@@ -135,7 +135,7 @@ public class Board{
 		for(int[][] row : locations){
 			if(testOnBoard(dummyBoard, row)) {
 				partialBoard = placeOnBoard(partialBoard, row, currPiece);
-				displayBoard(partialBoard);
+				//displayBoard(partialBoard);
 				resultBoard = dfsPentomino(sourcePos + 1, copyOfBoard(partialBoard), orderList);
 				if (resultBoard != null) {
 					return resultBoard;
