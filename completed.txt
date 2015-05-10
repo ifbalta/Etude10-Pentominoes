@@ -1,0 +1,46 @@
+Puzzle 1:
+Q Q X U U O 
+Q X X X U O 
+Q W X U U O 
+Q W W Z Z O 
+P P W W Z O 
+P P T R Z Z 
+Y P T R R R 
+Y T T T R V 
+Y Y S S S V 
+Y S S V V V 
+
+Puzzle 1:
+No solution.
+Puzzle 1:
+No solution.
+Puzzle 1:
+Q Q X S S . . . 
+Q X X X S S S P 
+Q U X U Z Z P P 
+Q U U U W Z P P 
+T T T W W Z Z R 
+V T W W Y R R R 
+V T Y Y Y Y R . 
+V V V O O O O O 
+
+Puzzle 1:
+  R R P P Z Z   
+R R T P P Z V O 
+S R T P Z Z V O 
+S T T T V V V O 
+S S Q Q Q Q Y O 
+W S Q X U U Y O 
+W W X X X U Y Y 
+  W W X U U Y   
+
+Puzzle 1:
+U U X P P P Q Q 
+U X X X P P Q O 
+U U X V V V Q O 
+Y Z Z     V Q O 
+Y Y Z     V S O 
+Y R Z Z W T S O 
+Y R R W W T S S 
+R R W W T T T S 
+
