@@ -24,6 +24,11 @@ public class Board{
 	}
 
 	public void solveThisPuzzle(){
+		// if size != 12 * 5
+		if (puzzleBoard.length * puzzleBoard[0].length < (12 * 5)) {
+			System.out.println("No solution");
+			return;
+		}
 		Piece[][] gameBoard = copyOfBoard(puzzleBoard);
 		initGame();
 		System.out.println("Puzzle 1:");
@@ -100,7 +105,7 @@ public class Board{
 		for(int[][] location : starterLocations){
 			if(testOnBoard(testBoard, location)) {
 				testBoard = placeOnBoard(testBoard, location, start);
-				displayBoard(testBoard);
+				//displayBoard(testBoard);
 				testBoard = dfsPentomino(1, testBoard, orderList); // choose next pentomino
 				if (testBoard != null && usedPentominoes.size() == pentominoes.size()) {
 					return testBoard;
@@ -175,15 +180,18 @@ public class Board{
   */
   public boolean testOnBoard(Piece[][] testBoard, int[][] coords){
   	Piece[][] guineaPig = copyOfBoard(testBoard);
-  	HoleChecker checker;
+  	// ensure that placement doesn't result in holes
+  	HoleChecker checker = new HoleChecker(guineaPig, coords);
   	// ensure that places are available
   	for (int[] loc : coords) {
   		if (testBoard[loc[0]][loc[1]] != Piece.EMPTY) return false; // occupied
+  		 if(checker.checkOccupiedSurroundings(loc)) return false;
   	}
-  	// ensure that placement doesn't result in holes
-  	checker = new HoleChecker(guineaPig, coords);
-	  if(checker.hasHolesNow()) return false;
+  	
+	 
   	if(checker.allEncompassingChecker()) return false;
+
+
 
   	return true;
   }
@@ -375,7 +383,9 @@ public class Board{
 	public boolean checkValid(Piece[][] b, Pentomino trial, int rowPointer, int colPointer){
 	//	System.out.println("check valid " + trial);
 		int[][] points = trial.placeOf();
-		int x, y;
+		int[][] offsetLocs;
+		Piece[][] guineaPig;
+		int x, y, neighbours, surroundingLimit, i;
 		HoleChecker checker; 
 		// for(int[] paire : points){
 		// 	System.err.printf(" (%s, %s) ", paire[0] + rowPointer, paire[1] + colPointer);
@@ -398,19 +408,62 @@ public class Board{
 			}
 
 		}
-		// if(origin.unfilled(b, rowPointer, colPointer, points)){
-		// //		System.err.printf("Error: Does not actually fill space.\n");
-		// 		return false;
-		// }
+		/**
+				NEW STUFF.
+		*/
+		guineaPig  = copyOfBoard(b);
+		offsetLocs = new int[5][2];
+		i = 0;
+		// place pieces on board.
+		for (int[] validLoc : points) {
+			x = validLoc[0] + rowPointer;
+			y = validLoc[1] + colPointer;
+			guineaPig[x][y] = Piece.DUMMY;
+			offsetLocs[i][0] = x;
+			offsetLocs[i][1] = y;
+			i++;
+		}
 
-		// checker = new HoleChecker(b, rowPointer, colPointer, points, trial.toString());
-		// if(checker.hasHolesNow()){
-		// //		System.err.printf("Error: Results in holes.\n");
-		// 		return false;
-		// }
+		// check that there are no holes
+		for (int row = 0; row < guineaPig.length; row++) {
+			for (int col = 0; col < guineaPig[0].length; col++) {
+				if (guineaPig[row][col] == Piece.EMPTY){
+					surroundingLimit = 4;
+					neighbours = 0;
+					if (row > 0) {
+						if(guineaPig[row - 1][col] != Piece.EMPTY) neighbours++;
+					} else {
+						surroundingLimit--;
+					}
+
+					if (row < guineaPig.length - 1) {
+						if(guineaPig[row + 1][col] != Piece.EMPTY) neighbours++;
+					} else {
+						surroundingLimit--;
+					}
+
+					if (col > 0) {
+						if(guineaPig[row][col - 1] != Piece.EMPTY) neighbours++;
+					} else {
+						surroundingLimit--;
+					}
 
 
-		return true;//noHoles(points);
+					if (col < guineaPig[0].length - 1) {
+						if(guineaPig[row][col + 1] != Piece.EMPTY) neighbours++;
+					} else {
+						surroundingLimit--;
+					}
+
+					if (neighbours == surroundingLimit) return false;
+				}
+			}
+		}
+		/**
+				END OF NEW STUFF.
+		*/
+
+		return true;
 	}
 
 	public Piece[][] clearTestBoard(){

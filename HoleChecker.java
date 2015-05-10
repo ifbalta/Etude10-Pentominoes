@@ -27,7 +27,6 @@ public class HoleChecker{
             board[occX][occY] = Piece.DUMMY;
           }
         }
-        // displayBoard(board);
 
 
         this.board = board;
@@ -47,14 +46,15 @@ public class HoleChecker{
 
 
     public boolean hasHolesNow(){
+      displayBoard(board);
       for(int[] xy : occupied){
           // we have a hole.
           if(checkOccupiedSurroundings(xy)) {
-    //        System.out.printf("%s %s is an invalid loc\n", xy[0], xy[1]);
+            System.err.printf("%s %s is an invalid loc\n", xy[0], xy[1]);
             return true; // true if has holes
           }
           if (!allBoardChecker(board)) {
-          //  System.out.println("Failed: allBoardChecker");
+            System.err.println("Failed: allBoardChecker");
             return true; // true if we have massive holes
           }
         }
@@ -287,12 +287,12 @@ public class HoleChecker{
     }
 
     public static void displayBoard(Piece[][] b){
-      System.out.println("hole checker");
+      System.err.println("hole checker");
       for(Piece[] row : b){
         for(Piece p : row){
-          System.out.print(p.named() + " ");
+          System.err.print(p.named() + " ");
         }
-      System.out.println();
+      System.err.println();
     }
   }
 }
