@@ -24,6 +24,7 @@ public class Board{
 	}
 
 	public void solveThisPuzzle(){
+		System.out.println("Puzzle 1:");
 		// if size != 12 * 5
 		if (puzzleBoard.length * puzzleBoard[0].length < (12 * 5)) {
 			System.out.println("No solution");
@@ -31,7 +32,7 @@ public class Board{
 		}
 		Piece[][] gameBoard = copyOfBoard(puzzleBoard);
 		initGame();
-		System.out.println("Puzzle 1:");
+		
 		//displayBoard(puzzleBoard);
 
 		//tryAllPlacements(copyOfBoard(puzzleBoard));
@@ -40,7 +41,11 @@ public class Board{
 		if (gameBoard == null) {
 			System.out.println("No solution.");
 		} else {
-			displayBoard(gameBoard);
+			if (isNotCompletelyFilled(gameBoard);){
+				System.out.println("No solution.");
+			} else{
+				displayBoard(gameBoard);
+			}
 		}
 	}
 
