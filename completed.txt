@@ -23,6 +23,7 @@ T T T W W Z Z R
 V T W W Y R R R 
 V T Y Y Y Y R . 
 V V V O O O O O 
+No solution.
 
 Puzzle 1:
   R R P P Z Z   
