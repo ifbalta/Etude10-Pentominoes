@@ -41,7 +41,7 @@ public class Board{
 		if (gameBoard == null) {
 			System.out.println("No solution.");
 		} else {
-			if (isNotCompletelyFilled(gameBoard);){
+			if (isNotCompletelyFilled(gameBoard)){
 				System.out.println("No solution.");
 			} else{
 				displayBoard(gameBoard);
