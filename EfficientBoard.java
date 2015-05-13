@@ -3,8 +3,10 @@
 	Testing tetris style solving.
 */
 import java.util.*;
-public class Board{
+import java.util.ArrayList;
 
+public class EfficientBoard{
+    private static int PUZZLE_COUNTER = 0;
 	private final int PENTO_PIECES = 12;
 	private final int PENTO_AREA_SIZE = 5; // Pentominoes occupy 5 squares only.
 	private final String PENTO_STRING = "[OPQRSTUVWXYZ]"; 
@@ -17,14 +19,14 @@ public class Board{
 	private int colPointer = 0;
 	private boolean succesfulPlacement = false;
 	private ArrayList<Pentomino> usedPentominoes = new ArrayList<Pentomino>();
-	private Map<Piece, ArrayList<int[][]>> pentoMap = new HashMap<>();
+	private Map<Piece, ArrayList<int[][]>> pentoMap = new HashMap<Piece, ArrayList<int[][]>>();
 
-	public Board(ArrayList<String> puzzleStringList){
+	public EfficientBoard(ArrayList<String> puzzleStringList){
 		this.puzzleBoard = buildPuzzle(puzzleStringList);
 	}
 
 	public void solveThisPuzzle(){
-		System.out.println("Puzzle 1:");
+		System.out.printf("Puzzle %s:\n", ++PUZZLE_COUNTER);
 		// if size != 12 * 5
 		if (puzzleBoard.length * puzzleBoard[0].length < (12 * 5)) {
 			System.out.println("No solution");
@@ -49,77 +51,56 @@ public class Board{
 		}
 	}
 
-	/*
-	* Choose a starting rotation, then choose the next pentominoes.
-	*/
-	public Piece[][] beginSolving(){
-		Random rand = new Random();
-		Piece[][] solvingBoard = copyOfBoard(puzzleBoard);
-		Pentomino startPentomino = pentominoes.get(rand.nextInt(pentominoes.size()));
-		System.err.println("starting: " + startPentomino);
-		ArrayList<int[][]> firstPentominoPlacement = pentoMap.get(startPentomino.pieceName());
-
-		for (int[][] row : firstPentominoPlacement) {
-			if(testOnBoard(solvingBoard, row)) {
-				for (int[] loc : row) {
-	  			solvingBoard[loc[0]][loc[1]] = startPentomino.pieceName();	  			
-  			}
-  			usedPentominoes.add(startPentomino);
-  			solvingBoard = chooseNextPentominoes(solvingBoard);  			
-  			if (usedPentominoes.size() != pentominoes.size()) {
-  				// we haven't used everybody.
-  				//displayBoard(solvingBoard);
-  				usedPentominoes.clear();
-  				solvingBoard = copyOfBoard(puzzleBoard);
-  			} else {
-  				displayBoard(solvingBoard);
-  				System.out.println("USED: " + usedPentominoes.size());
-  				return solvingBoard;
-  			}  			 
-  			// System.out.println("Looping through.");
-			}
-		}
-		return null;
-	}
-
-	public Piece[][] chooseNextPentominoes(Piece[][] solvingBoard){
-		Piece[][] testBoard = copyOfBoard(solvingBoard);
-		Piece[][] tentative = copyOfBoard(solvingBoard);
-			for (Pentomino p : pentominoes) {
-				if(!usedPentominoes.contains(p)){
-					tentative = pickAPlacement(p, testBoard);
-					if (tentative == null) {
-						// delete the previous pentomino
-						testBoard = erasePreviousMove(usedPentominoes.get(usedPentominoes.size() - 1), testBoard);
-					}
-				}
-			//	displayBoard(testBoard);
-		}
-		// displayBoard(testBoard);
-		return testBoard;
-	}
-
+    /**
+     * Find an empty spot and cover it.
+     * Find the next spot, then dfs through that stuff.
+     * */
 	public Piece[][] beginDfsSolving(Piece[][] puzzleBoard){
-		ArrayList<Pentomino> orderList = new ArrayList<>();
 		Piece[][] testBoard = copyOfBoard(puzzleBoard);
+        Piece[][] resultBoard;
+        ArrayList<Pentomino> orderList = new ArrayList<Pentomino>();
 		orderList.addAll(pentominoes);
 		Collections.shuffle(orderList);
-		Pentomino start = orderList.get(0);
-		ArrayList<int[][]> starterLocations = pentoMap.get(start.pieceName());
+		ArrayList<int[][]> pieceLocations;
+        ArrayList<Pentomino> used = new ArrayList<Pentomino>();
+        int emptyX = 0, emptyY = 0;
+        // find first empty spot and find a pentomino that fits it.
+        // find an empty spot first
+        for (int row = 0; row < testBoard.length; row++) {
+            for (int col = 0; col < testBoard[0].length; col++) {
+                if (testBoard[row][col] == Piece.EMPTY){
+                    emptyX = row;
+                    emptyY = col;
+                    break;
+                }
+            }
+        }
+        for (Pentomino pentomino : orderList) {
+            // get pentomino placements
+            pieceLocations = pentoMap.get(pentomino.pieceName());
+            for (int[][] locs : pieceLocations){
+                for(int[] xy : locs){
+                    if (xy[0] == emptyX && xy[1] == emptyY) {
+                     // check that this location can be placed.
+                     if (testOnBoard(copyOfBoard(testBoard), locs)) {
+                         testBoard = placeOnBoard(testBoard, locs, pentomino);
+                         used.add(pentomino);
+                         //displayBoard(testBoard);
+                         resultBoard = dfsPentomino( testBoard, orderList, used);
+                         if (resultBoard != null) {
+                             return resultBoard;
+                         }
+                         // failed. take it out and find another pentomino.
+                         testBoard = erasePreviousMove(pentomino, testBoard);
+                         used.remove(pentomino);
+                     }
+                 }
+             }
+            }
+        }
 
-		for(int[][] location : starterLocations){
-			if(testOnBoard(testBoard, location)) {
-				testBoard = placeOnBoard(testBoard, location, start);
-				//displayBoard(testBoard);
-				testBoard = dfsPentomino(1, testBoard, orderList); // choose next pentomino
-				if (testBoard != null && usedPentominoes.size() == pentominoes.size()) {
-					return testBoard;
-				} else {
-					testBoard = copyOfBoard(puzzleBoard);
-					usedPentominoes.remove(start);
-				} 
-			}
-		}
+
+
 		return null;
 	}
 
@@ -127,29 +108,58 @@ public class Board{
 		for (int[] loc : location) {
 	  			copiedBoard[loc[0]][loc[1]] = piece.pieceName();	  			
   			}
-  			usedPentominoes.add(piece);
+        usedPentominoes.add(piece);
   			return copiedBoard;
 	}
 
-	public Piece[][] dfsPentomino(int sourcePos, Piece[][] partialBoard, ArrayList<Pentomino> orderList){
+    /**
+     * Instead of blindly placing a pentomino, look for an empty spot, then find an unused
+     * pentomino that can fit it.
+     * */
+	public Piece[][] dfsPentomino(Piece[][] partialBoard, ArrayList<Pentomino> orderList, ArrayList<Pentomino> used){
 		Piece[][] dummyBoard = copyOfBoard(partialBoard);
 		Piece[][] resultBoard;
-		if(sourcePos == orderList.size()) return partialBoard; // found the solution
-		Pentomino currPiece = orderList.get(sourcePos);
-		ArrayList<int[][]> locations = pentoMap.get(currPiece.pieceName());
-		for(int[][] row : locations){
-			if(testOnBoard(dummyBoard, row)) {
-				partialBoard = placeOnBoard(partialBoard, row, currPiece);
-				//displayBoard(partialBoard);
-				resultBoard = dfsPentomino(sourcePos + 1, copyOfBoard(partialBoard), orderList);
-				if (resultBoard != null) {
-					return resultBoard;
-				} else {
-					partialBoard = erasePreviousMove(currPiece, partialBoard);
-				}
-			}
-		}
-		return null;
+        int emptyX = 0, emptyY = 0;
+		if(used.size() == orderList.size()) return partialBoard; // found a solution, because I've covered 60 places
+
+        // find an empty spot first
+        for (int row = 0; row < partialBoard.length; row++) {
+            for (int col = 0; col < partialBoard[0].length; col++) {
+                if (partialBoard[row][col] == Piece.EMPTY){
+                    emptyX = row;
+                    emptyY = col;
+                    break;
+                }
+            }
+        }
+      //  System.err.printf("Empty %s %s\n", emptyX, emptyY);
+		ArrayList<int[][]> pieceLocations;
+        for (Pentomino pentomino : orderList) {
+            if (!used.contains(pentomino)) {
+                // get pentomino placements
+                pieceLocations = pentoMap.get(pentomino.pieceName());
+                for (int[][] locs : pieceLocations) {
+                    for (int[] xy : locs) {
+                        if (xy[0] == emptyX && xy[1] == emptyY) {
+                            // check that this location can be placed.
+                            if (testOnBoard(dummyBoard, locs)) {
+                                partialBoard = placeOnBoard(partialBoard, locs, pentomino);
+                                used.add(pentomino);
+                               // displayBoard(partialBoard);
+                                resultBoard = dfsPentomino(partialBoard, orderList, used);
+                                if (resultBoard != null) {
+                                    return resultBoard;
+                                }
+                                // failed. take it out and find another pentomino.
+                                partialBoard = erasePreviousMove(pentomino, partialBoard);
+                                used.remove(pentomino);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
 	}
 
 	public Piece[][] erasePreviousMove(Pentomino prev, Piece[][] prevBoard){
@@ -163,21 +173,6 @@ public class Board{
 		}
 		usedPentominoes.remove(prev);
 		return prevBoard;
-	}
-
-	public Piece[][] pickAPlacement(Pentomino piece, Piece[][] copiedBoard){
-		ArrayList<int[][]> availablePlacements = pentoMap.get(piece.pieceName());
-		for (int[][] row : availablePlacements) {
-			// we're fine, go ahead and place.
-			if (testOnBoard(copiedBoard, row)) {
-				for (int[] loc : row) {
-	  			copiedBoard[loc[0]][loc[1]] = piece.pieceName();	  			
-  			}
-  			usedPentominoes.add(piece);
-  			return copiedBoard;
-			}
-		}
-		return null;
 	}
 
 	/*
@@ -195,9 +190,6 @@ public class Board{
   	
 	 
   	if(checker.allEncompassingChecker()) return false;
-
-
-
   	return true;
   }
 	
@@ -257,59 +249,7 @@ public class Board{
 		pentoMap.put(piece.pieceName(), holder);
   }
 
-	/**
-	 * Places piece.
-	*/
-	public void placePiece(Piece[][] b, Pentomino pento, int[][] points){
-		int x, y;
-		for(int[] pair: points){
-			x = pair[0] + rowPointer;
-			y = pair[1] + colPointer;
-			b[x][y] = pento.pieceName();
-		}
-		// get a new rowPointer
-		for (int row = 0; row < b.length ; row++) {
-			for (int col = 0;col < b[row].length ;col++ ) {
-				if(b[row][col] == Piece.EMPTY){
-					// System.out.printf("Empty at %s %s\n", row, col );
-					rowPointer = row;
-					colPointer = col;
-					return;
-				}
-			}
-		}
 
-	}
-
-	public Piece[][] tryAllPlacements(Piece[][] board) {
-		int tries = 0;
-		ArrayList<Pentomino> availablePentominoes = new ArrayList<>();
-		ArrayList<Pentomino> usedPentominoes = new ArrayList<>();
-		availablePentominoes.addAll(pentominoes);
-		// for each piece, try and place them.
-		while(usedPentominoes.size() != availablePentominoes.size()){
-			for (Pentomino piece : availablePentominoes) {
-				if (!usedPentominoes.contains(piece)){
-					board = findASpot(board, piece);
-					if (succesfulPlacement) {
-						usedPentominoes.add(piece);
-					}
-					tries++;
-					if (tries == MAX_TRIES) {
-						Collections.shuffle(pentominoes);
-						return tryAllPlacements(copyOfBoard(puzzleBoard)); // copy the original board again.
-					}
-				}
-			}
-			displayBoard(board);
-		}
-
-		if (isNotCompletelyFilled(board)) {
-			Collections.shuffle(pentominoes);
-			return tryAllPlacements(copyOfBoard(puzzleBoard)); // copy the original board again.
-		}
-		return board;
-	}
 
 	public boolean isNotCompletelyFilled(Piece[][] board) {
 		//System.out.println("not isNotCompletelyFilled");
@@ -356,7 +296,6 @@ public class Board{
 
 
 
-
 	public Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points, int rowPt, int colPt){
 		int x, y;
 
@@ -387,16 +326,12 @@ public class Board{
 	 * Checks if space is available.	 
 	*/
 	public boolean checkValid(Piece[][] b, Pentomino trial, int rowPointer, int colPointer){
-	//	System.out.println("check valid " + trial);
+
 		int[][] points = trial.placeOf();
 		int[][] offsetLocs;
 		Piece[][] guineaPig;
 		int x, y, neighbours, surroundingLimit, i;
 		HoleChecker checker; 
-		// for(int[] paire : points){
-		// 	System.err.printf(" (%s, %s) ", paire[0] + rowPointer, paire[1] + colPointer);
-		// }
-		// System.err.println();
 		for(int[] pair: points){
 			x = pair[0] + rowPointer;
 			y = pair[1] + colPointer;
@@ -414,9 +349,6 @@ public class Board{
 			}
 
 		}
-		/**
-				NEW STUFF.
-		*/
 		guineaPig  = copyOfBoard(b);
 		offsetLocs = new int[5][2];
 		i = 0;
@@ -465,21 +397,7 @@ public class Board{
 				}
 			}
 		}
-		/**
-				END OF NEW STUFF.
-		*/
-
 		return true;
-	}
-
-	public Piece[][] clearTestBoard(){
-		Piece[][] testBoard = new Piece[len][len];
-		for(Piece[] row : testBoard){
-			for(int cell = 0; cell < testBoard[0].length ; cell++){
-				row[cell] = Piece.EMPTY;
-			}
-		}
-		return testBoard;		
 	}
 
 	public void displayBoard(Piece[][] b){
@@ -490,15 +408,6 @@ public class Board{
 			System.out.println();
 		}
 		System.out.println();
-	}
-
-	public void setBoard(){
-		board = new Piece[len][len];
-		for(int r = 0; r < len; r++){
-			for(int c = 0; c < len; c++){
-				board[r][c] = Piece.EMPTY;
-			}
-		}
 	}
 
 	public Piece[][] buildPuzzle(ArrayList<String> input) {

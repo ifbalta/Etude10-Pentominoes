@@ -46,15 +46,15 @@ public class HoleChecker{
 
 
     public boolean hasHolesNow(){
-      displayBoard(board);
+      //displayBoard(board);
       for(int[] xy : occupied){
           // we have a hole.
           if(checkOccupiedSurroundings(xy)) {
-            System.err.printf("%s %s is an invalid loc\n", xy[0], xy[1]);
+        //    System.err.printf("%s %s is an invalid loc\n", xy[0], xy[1]);
             return true; // true if has holes
           }
           if (!allBoardChecker(board)) {
-            System.err.println("Failed: allBoardChecker");
+        //    System.err.println("Failed: allBoardChecker");
             return true; // true if we have massive holes
           }
         }

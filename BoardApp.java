@@ -5,14 +5,14 @@
 public class BoardApp {
   public static void main(String[] args){
     Scanner input = new Scanner(System.in);
-    Board board;
+    EfficientBoard board;
     String currentLine;
     ArrayList<String> puzzleStringList = new ArrayList<>();
     while (input.hasNextLine()) {
       currentLine = input.nextLine();
       if(currentLine.equals("")) {
         // make a new board instance
-        board = new Board(puzzleStringList);
+        board = new EfficientBoard(puzzleStringList);
         board.solveThisPuzzle();
         puzzleStringList.clear();
       } else {
@@ -20,7 +20,7 @@ public class BoardApp {
       }
     }
     if (!puzzleStringList.isEmpty()) {
-      board = new Board(puzzleStringList);
+      board = new EfficientBoard(puzzleStringList);
       board.solveThisPuzzle();
     }
   }
