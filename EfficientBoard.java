@@ -28,10 +28,10 @@ public class EfficientBoard{
 	public void solveThisPuzzle(){
 		System.out.printf("Puzzle %s:\n", ++PUZZLE_COUNTER);
 		// if size != 12 * 5
-		if (puzzleBoard.length * puzzleBoard[0].length < (12 * 5)) {
-			System.out.println("No solution");
-			return;
-		}
+//		if (puzzleBoard.length * puzzleBoard[0].length < (12 * 5)) {
+//			System.out.println("No solution");
+//			return;
+//		}
 		Piece[][] gameBoard = copyOfBoard(puzzleBoard);
 		initGame();
 		
@@ -41,7 +41,7 @@ public class EfficientBoard{
 		produceAllPossibilities(gameBoard); // this guy will create all the nodes.
 		gameBoard = beginDfsSolving(copyOfBoard(puzzleBoard));
 		if (gameBoard == null) {
-			System.out.println("No solution.");
+			System.out.println("No solution!");
 		} else {
 			if (isNotCompletelyFilled(gameBoard)){
 				System.out.println("No solution.");
@@ -64,17 +64,20 @@ public class EfficientBoard{
 		ArrayList<int[][]> pieceLocations;
         ArrayList<Pentomino> used = new ArrayList<Pentomino>();
         int emptyX = 0, emptyY = 0;
+        boolean notFound = false;
         // find first empty spot and find a pentomino that fits it.
         // find an empty spot first
-        for (int row = 0; row < testBoard.length; row++) {
-            for (int col = 0; col < testBoard[0].length; col++) {
+        for (int row = 0; row < testBoard.length && !notFound; row++) {
+            for (int col = 0; col < testBoard[0].length && !notFound; col++) {
                 if (testBoard[row][col] == Piece.EMPTY){
                     emptyX = row;
                     emptyY = col;
+                    notFound = true;
                     break;
                 }
             }
         }
+       // System.out.printf("found an empty %s %s\n", emptyX, emptyY);
         for (Pentomino pentomino : orderList) {
             // get pentomino placements
             pieceLocations = pentoMap.get(pentomino.pieceName());
@@ -85,7 +88,7 @@ public class EfficientBoard{
                      if (testOnBoard(copyOfBoard(testBoard), locs)) {
                          testBoard = placeOnBoard(testBoard, locs, pentomino);
                          used.add(pentomino);
-                         //displayBoard(testBoard);
+                        // displayBoard(testBoard);
                          resultBoard = dfsPentomino( testBoard, orderList, used);
                          if (resultBoard != null) {
                              return resultBoard;
@@ -120,14 +123,16 @@ public class EfficientBoard{
 		Piece[][] dummyBoard = copyOfBoard(partialBoard);
 		Piece[][] resultBoard;
         int emptyX = 0, emptyY = 0;
-		if(used.size() == orderList.size()) return partialBoard; // found a solution, because I've covered 60 places
+        boolean notFound = false;
+		if(used.size() == orderList.size()) return partialBoard; // found a solution, because I've used all pieces
 
         // find an empty spot first
-        for (int row = 0; row < partialBoard.length; row++) {
-            for (int col = 0; col < partialBoard[0].length; col++) {
+        for (int row = 0; row < partialBoard.length && !notFound; row++) {
+            for (int col = 0; col < partialBoard[0].length && !notFound; col++) {
                 if (partialBoard[row][col] == Piece.EMPTY){
                     emptyX = row;
                     emptyY = col;
+                    notFound = true;
                     break;
                 }
             }
@@ -145,7 +150,7 @@ public class EfficientBoard{
                             if (testOnBoard(dummyBoard, locs)) {
                                 partialBoard = placeOnBoard(partialBoard, locs, pentomino);
                                 used.add(pentomino);
-                               // displayBoard(partialBoard);
+                            //    displayBoard(partialBoard);
                                 resultBoard = dfsPentomino(partialBoard, orderList, used);
                                 if (resultBoard != null) {
                                     return resultBoard;
@@ -181,15 +186,15 @@ public class EfficientBoard{
   public boolean testOnBoard(Piece[][] testBoard, int[][] coords){
   	Piece[][] guineaPig = copyOfBoard(testBoard);
   	// ensure that placement doesn't result in holes
-  	HoleChecker checker = new HoleChecker(guineaPig, coords);
+  	//HoleChecker checker = new HoleChecker(guineaPig, coords);
   	// ensure that places are available
   	for (int[] loc : coords) {
   		if (testBoard[loc[0]][loc[1]] != Piece.EMPTY) return false; // occupied
-  		 if(checker.checkOccupiedSurroundings(loc)) return false;
+  		// if(checker.checkOccupiedSurroundings(loc)) return false;
   	}
   	
 	 
-  	if(checker.allEncompassingChecker()) return false;
+  	//if(checker.allEncompassingChecker()) return false;
   	return true;
   }
 	
@@ -215,12 +220,13 @@ public class EfficientBoard{
       coords = piece.placeOf(); // returns coordinates of a pentomino
       rotations = piece.getLimit(); // number of possible rotations
       while(rotations > 0){
-        for(int row = 0; row < len; row++){ 
-          for(int col = 0; col < len; col++){
+        for(int row = 0; row < puzzleInput.length; row++){
+          for(int col = 0; col < puzzleInput[0].length; col++){
             puzzleBoard = copyOfBoard(puzzleInput);
             rowPointer = row;
             colPointer = col;
             if (checkValid(puzzleBoard, piece, rowPointer, colPointer)){
+              //  displayTest(copyOfBoard(puzzleBoard), piece.pieceName(), coords,  rowPointer, colPointer);
               addToMap(piece, coords, rowPointer, colPointer);
             }
           }
@@ -232,6 +238,16 @@ public class EfficientBoard{
 
     }
   }
+
+    /**
+     * For testing all possibilities.
+     * */
+    public void displayTest(Piece[][] test, Piece piece, int[][] coords, int rowPt, int colPt){
+        for(int[] loc : coords){
+            test[loc[0] + rowPt][loc[1] + colPt] = piece;
+        }
+        displayBoard(test);
+    }
 
   /*
   * Method for storing all possibilities
@@ -260,40 +276,6 @@ public class EfficientBoard{
 		}
 		return false;
 	}
-
-	public Piece[][] findASpot(Piece[][] board, Pentomino piece){
-		int[][] coords;
-		int rowPt, colPt;
-		int rotations = piece.getLimit();
-		// reset
-		succesfulPlacement = false;
-		while (rotations > 0) {
-			System.out.printf("rotation %s\n", rotations);
-			coords = piece.placeOf();
-			// find a spot
-			for (int row = 0; row < board.length; row++ ) {
-				for (int col = 0; col < board[0].length ; col++) {
-					if (board[row][col] == Piece.EMPTY) {
-						rowPt = row;
-						colPt = col;
-						if (checkValid(board, piece, rowPt, colPt)) {
-							board = placePieceTest(board, piece, coords, rowPt, colPt);
-							succesfulPlacement = true;
-							System.out.println("Successful " + piece);
-							displayBoard(board);
-							return board;
-						}
-					}
-				}
-			}
-			piece.rotate();
-			rotations--;
-		}
-		System.out.println("Unsuccessful " + piece);
-		displayBoard(board);
-		return board;
-	}
-
 
 
 	public Piece[][] placePieceTest(Piece[][] b, Pentomino pento, int[][] points, int rowPt, int colPt){
@@ -331,7 +313,6 @@ public class EfficientBoard{
 		int[][] offsetLocs;
 		Piece[][] guineaPig;
 		int x, y, neighbours, surroundingLimit, i;
-		HoleChecker checker; 
 		for(int[] pair: points){
 			x = pair[0] + rowPointer;
 			y = pair[1] + colPointer;
@@ -348,54 +329,6 @@ public class EfficientBoard{
 				return false;
 			}
 
-		}
-		guineaPig  = copyOfBoard(b);
-		offsetLocs = new int[5][2];
-		i = 0;
-		// place pieces on board.
-		for (int[] validLoc : points) {
-			x = validLoc[0] + rowPointer;
-			y = validLoc[1] + colPointer;
-			guineaPig[x][y] = Piece.DUMMY;
-			offsetLocs[i][0] = x;
-			offsetLocs[i][1] = y;
-			i++;
-		}
-
-		// check that there are no holes
-		for (int row = 0; row < guineaPig.length; row++) {
-			for (int col = 0; col < guineaPig[0].length; col++) {
-				if (guineaPig[row][col] == Piece.EMPTY){
-					surroundingLimit = 4;
-					neighbours = 0;
-					if (row > 0) {
-						if(guineaPig[row - 1][col] != Piece.EMPTY) neighbours++;
-					} else {
-						surroundingLimit--;
-					}
-
-					if (row < guineaPig.length - 1) {
-						if(guineaPig[row + 1][col] != Piece.EMPTY) neighbours++;
-					} else {
-						surroundingLimit--;
-					}
-
-					if (col > 0) {
-						if(guineaPig[row][col - 1] != Piece.EMPTY) neighbours++;
-					} else {
-						surroundingLimit--;
-					}
-
-
-					if (col < guineaPig[0].length - 1) {
-						if(guineaPig[row][col + 1] != Piece.EMPTY) neighbours++;
-					} else {
-						surroundingLimit--;
-					}
-
-					if (neighbours == surroundingLimit) return false;
-				}
-			}
 		}
 		return true;
 	}
